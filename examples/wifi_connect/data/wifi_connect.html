@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Available Wi-Fi Networks</title>
     <link rel="stylesheet" href="css/milligram.css">
     <style>
@@ -23,7 +24,8 @@
         }
 
         button,
-        input[type="submit"] {
+        input[type="submit"],
+        input[type="button"] {
             background-color: var(--main-color);
             border: none;
         }
@@ -49,14 +51,14 @@
 
         .popup {
             position: absolute;
-            top: 40%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            top: 50%;
+            left: 10%;
+            transform: translate(-5%, -50%);
             background: white;
-            padding: 20px;
+
             text-align: center;
             max-width: 90%;
-            /* Limit the popup width on small screens */
+            box-shadow: gray 0px 0px 3px;
         }
 
         .popup form {
@@ -108,9 +110,6 @@
             font-size: x-small;
         }
 
-        .network table td {}
-
-
         form {
             display: flex;
             flex-direction: column;
@@ -128,6 +127,27 @@
             padding: 6px;
             border-radius: 5px;
         }
+
+        .cancelbutton {
+            background-color: #b61b00 !important;
+        }
+
+        .apcontainer {
+            box-shadow: #b8b8b8 0px 0px 3px;
+            text-align: center;
+            margin-bottom: 20px;
+            ;
+        }
+
+        .apcontainer label,
+        .stacontainer label {
+            font-size: 12px;
+            font-weight: 100;
+        }
+
+        .grayscale-div {
+            filter: grayscale(100%);
+        }
     </style>
 
 </head>
@@ -136,10 +156,38 @@
     <div class="title" style="width: 100%;text-align: center;">
         <img style="margin: auto;width: 50%;margin: 20px;" src="img/logo.png">
     </div>
-    <div class="container">
-        <h4>New Wi-Fi Networks</h4>
+    <div class="container apcontainer grayscale-div">
+        <table style="margin: auto;">
+            <tr>
+                <td><img src="img/ap.png" width="60"></td>
+                <td style="width: 60%;">
+                    <label id="ap_ssid" style="font-weight: bold;font-size: 16px;">#</label>
+                    <label id="ap_pw">#</label>
+                    <label id="ap_ip">#</label>
+                </td>
+                <td><img id="ap_img" src="img/active.png" width="70"></td>
+            </tr>
+        </table>
+    </div>
 
-        <form>
+    <div class="container stacontainer grayscale-div">
+        <table style="margin: auto;">
+            <tr>
+                <td><img src="img/sta.png" width="60"></td>
+                <td style="width: 60%;">
+                    <label id="sta_ssid" style="font-weight: bold;font-size: 16px;">#</label>
+                    <label id="sta_pw">#</label>
+                    <label id="sta_ip">#</label>
+                </td>
+                <td><img id="sta_img" src="img/active.png" width="70"></td>
+            </tr>
+        </table>
+    </div>
+
+
+    <div class="container">
+        <h4>Add New Network</h4>
+        <div>
             <label for="username">Wi-Fi SSID (Network Name):</label>
             <input type="text" id="ssidField" name="username" placeholder="Enter Wi-Fi SSID" required>
 
@@ -147,114 +195,234 @@
             <input type="password" id="passwordField" name="password" placeholder="Enter Wi-Fi Password" required>
             <table>
                 <tr>
-                    <td style="width: 60%;">
-
+                    <td style="width: 70%;padding: 0px;margin: 0px;">
+                        <div id="loading_text"
+                            style="background-color: #ccffaf;margin: 0px;width: 100%;height: 100%;text-align: right;;display: none">
+                            Connecting...</div>
                     </td>
-                    <td style="width: 20%;">
-                        <img src="img/loading.gif" width="30" style="float: right;">
+                    <td style="width: 15%;">
+                        <img id="loading_image" src="img/loading.gif"
+                            style="float: righ;;margin: 0px;padding: 0px; height: 100%;display: none;">
                     </td>
-                    <td style="width: 20%;">
-                        <input class="" type="submit" value="Connect">
+                    <td style="width: 15%;">
+                        <button class="" id="connectbutton" onclick="connectWifi()">Connect</button>
                     </td>
                 </tr>
             </table>
-
-        </form>
-
+        </div>
     </div>
+
 
     <div class="container">
         <h4>Available Wi-Fi Networks</h4>
-        <div id="listofnetworks">
-
-
-
-        </div>
-        <button class="pop-button">Refresh List</button>
+        <div id="listofnetworks"></div>
     </div>
+    <br><br>
+    <h4>Network status JSON</h4>
+    <textarea id="jsondetails"></textarea>
 
     <!-- Popup -->
     <div class="popup-container" id="popupContainer">
-        <div class="popup">
-            <h2>Connect to Wi-Fi</h2>
 
+        <div class="popup">
+
+            <p style="background-color: #a3ffca;padding: 10px;"><strong>Successfully connected to the
+                    '<strong class="sta_name_p"></strong>' network.</strong></p>
+
+            <div class="container" style="text-align: left;padding: 20px;">
+
+
+                <p>To access the device's interface, please follow these steps:</p>
+
+                <ol>
+                    <li>Connect to the '<strong class="sta_name_p"></strong>' Wi-Fi network.</li>
+                    <li>Open a web browser and enter the following IP address in the address bar
+                        <strong><a class="iplink" href=""></a></strong> or
+                        simply click the button below.
+                    </li>
+                </ol>
+                <button onclick=" popup(false);">Close</button>
+                <button><a class="iplink" style="color: white;" href=""></a></button>
+            </div>
         </div>
     </div>
 
     <script>
-        var wifilist = [
-            {
-                "wifi_name": "MyWiFiNetwork1",
-                "wifi_password": "MySecurePassword1",
-                "encryption_type_index": 2,
-                "signal_strength": -10,
-                "connected_status": true
-            },
-            {
-                "wifi_name": "GuestWiFi",
-                "wifi_password": "GuestPassword123",
-                "encryption_type_index": 1,
-                "signal_strength": -60,
-                "connected_status": false
-            },
-            {
-                "wifi_name": "HomeNetwork",
-                "wifi_password": "SuperSecret123",
-                "encryption_type_index": 3,
-                "signal_strength": -80,
-                "connected_status": true
-            }, {
-                "wifi_name": "MyWiFiNetwork1",
-                "wifi_password": "MySecurePassword1",
-                "encryption_type_index": 2,
-                "signal_strength": -10,
-                "connected_status": true
-            },
-            {
-                "wifi_name": "GuestWiFi",
-                "wifi_password": "GuestPassword123",
-                "encryption_type_index": 1,
-                "signal_strength": -60,
-                "connected_status": false
-            },
-            {
-                "wifi_name": "HomeNetwork",
-                "wifi_password": "SuperSecret123",
-                "encryption_type_index": 3,
-                "signal_strength": -80,
-                "connected_status": true
-            }, {
-                "wifi_name": "MyWiFiNetwork1",
-                "wifi_password": "MySecurePassword1",
-                "encryption_type_index": 2,
-                "signal_strength": -10,
-                "connected_status": true
-            },
-            {
-                "wifi_name": "GuestWiFi",
-                "wifi_password": "GuestPassword123",
-                "encryption_type_index": 1,
-                "signal_strength": -60,
-                "connected_status": false
-            },
-            {
-                "wifi_name": "HomeNetwork",
-                "wifi_password": "SuperSecret123",
-                "encryption_type_index": 3,
-                "signal_strength": -80,
-                "connected_status": true
+        var wificonnect = false;
+        var button;
+        var loading_img;
+        var loading_text;
+        var usernameInput;
+        var passwordInput;
+        function connectWifi() {
+            button = document.getElementById('connectbutton');
+            loading_img = document.getElementById('loading_image');
+            loading_text = document.getElementById('loading_text');
+            usernameInput = document.getElementsByName("username")[0];
+            passwordInput = document.getElementsByName("password")[0];
+
+
+            if (!wificonnect) {
+
+                if (usernameInput.value === '') {
+                    alert('SSID cannot empty!');
+                    usernameInput.focus();
+                    return;
+                }
+
+                formEnable(false);
+
+                getJSONData('wifi_connect?ssid=' + usernameInput.value + '&password=' + passwordInput.value, (error, data) => {
+                    if (error) {
+                        console.error('Error:', error);
+                        alert(error);
+                    } else {
+                        console.log(data); // Your JSON data is available here
+                        //window.location.href = 'wifidetails.html';
+                        fillTable(data);
+                    }
+
+                });
+
+            } else {
+                getJSONData('wifi_disconnect', (error, data) => {
+                    if (error) {
+                        console.error('Error:', error);
+                        alert(error);
+                    } else {
+                        console.log(data); // Your JSON data is available here
+                        // window.location.href = 'wifidetails.html';
+                        fillTable(data);
+                    }
+
+                });
             }
-        ];
-        function loadWifiList() {
-            loadJSONToNetworkList(wifilist);
-            return;
-            getJSONData('wifilist.json', (error, data) => {
+        }
+        var formenabled = false;
+        function formEnable(b) {
+            formenabled = b;
+            button = document.getElementById('connectbutton');
+            loading_img = document.getElementById('loading_image');
+            loading_text = document.getElementById('loading_text');
+            usernameInput = document.getElementsByName("username")[0];
+            passwordInput = document.getElementsByName("password")[0];
+            if (!b) {
+                wificonnect = true;
+                button.innerHTML = "Cancel";
+                button.classList.add('cancelbutton');
+                loading_img.style.display = 'block';
+                loading_text.style.display = 'block';
+                passwordInput.disabled = true;
+                usernameInput.disabled = true;
+            } else {
+                button.innerHTML = "Connect";
+                button.classList.remove('cancelbutton');
+                loading_img.style.display = 'none';
+                loading_text.style.display = 'none';
+                wificonnect = false;
+                passwordInput.disabled = false;
+                usernameInput.disabled = false;
+            }
+        }
+        function startWifiStatusLoop() {
+            getJSONData('wifi_status', (error, data) => {
                 if (error) {
                     console.error('Error:', error);
+                    //alert(error);///
+
+                    document.getElementsByClassName('apcontainer')[0].classList.add('grayscale-div');
+                    document.getElementsByClassName('stacontainer')[0].classList.add('grayscale-div');
+                } else {
+                    document.getElementsByClassName('apcontainer')[0].classList.remove('grayscale-div');
+                    document.getElementsByClassName('stacontainer')[0].classList.remove('grayscale-div');
+                    console.log(data);
+                    fillTable(data);
+                }
+            });
+        }
+
+        var lastwifistate = false;
+        function fillTable(wifistatus) {
+
+            document.getElementById('jsondetails').innerHTML = JSON.stringify(wifistatus);
+
+            document.getElementById('ap_ssid').innerHTML = wifistatus.AP_ssid;
+            document.getElementById('ap_pw').innerHTML = 'PW: ' + wifistatus.AP_password;
+            document.getElementById('ap_ip').innerHTML = 'IP: ' + wifistatus.AP_ip;
+
+            var img = 'img/deactived.png';
+            if (wifistatus.AP) {
+                img = 'img/active.png';
+            }
+            document.getElementById('ap_img').src = img;
+
+            document.getElementById('sta_ssid').innerHTML = wifistatus.STA_ssid;
+            var pw = '';
+            for (var n = 0; n < wifistatus.STA_password; n++) {
+                pw += '*';
+            }
+            document.getElementById('sta_pw').innerHTML = 'PW: ' + pw;
+            document.getElementById('sta_ip').innerHTML = 'IP: ' + wifistatus.STA_ip;
+
+            img = 'img/deactived.png';
+            if (wifistatus.STA == 3) {
+                img = 'img/active.png';
+            }
+            document.getElementById('sta_img').src = img;
+
+            var bwifistate = false;
+            if (wifistatus.STA == 3) {
+                bwifistate = true;
+            }
+            if (!formenabled && bwifistate != lastwifistate) {
+                formEnable(true);
+                if (bwifistate) {
+
+                    var links = document.getElementsByClassName('iplink');
+                    for (var i = 0; i < links.length; i++) {
+                        var element = links[i];
+                        element.innerHTML = wifistatus.STA_ip;
+                        element.href = 'http://' + wifistatus.STA_ip;
+                    }
+
+                    links = document.getElementsByClassName('sta_name_p');
+                    for (var i = 0; i < links.length; i++) {
+                        var element = links[i];
+                        element.innerHTML = wifistatus.STA_ssid;
+                    }
+
+                    popup(true);
+                }
+            }
+
+            lastwifistate = bwifistate;
+
+            /*document.getElementById("table_apStatus").textContent = wifistatus.AP;
+            document.getElementById("table_apSSID").textContent = wifistatus.AP_ssid;
+            document.getElementById("table_apPassword").textContent = wifistatus.AP_password;
+            document.getElementById("table_wifiStatus").textContent = wifistatus.STA_status;
+            document.getElementById("table_wifiSSID").textContent = wifistatus.STA_ssid;
+            document.getElementById("table_wifiPassword").textContent = wifistatus.STA_password;
+            document.getElementById("table_wifiConnectTime").textContent = wifistatus.STA_time;*/
+        }
+
+
+        var wifilist = {
+            "networks": [
+                { "SSID": "Dileepa's Galaxy Note20 Ultra 5G", "RSSI": -28, "Encryption": "WPA2-PSK" },
+                { "SSID": "DJAY", "RSSI": -63, "Encryption": "WPA/WPA2-PSK" }
+            ]
+        };
+        function loadWifiList() {
+
+            getJSONData('networks_list', (error, data) => {
+                if (error) {
+                    console.error('Error:', error);
+                    // loadJSONToNetworkList(wifilist);
                 } else {
                     //console.log(data); // Your JSON data is available here
                     wifilist = data;
-                    loadJSONToNetworkList(wifilist);
+                    loadJSONToNetworkList();
                 }
             });
         }
@@ -265,10 +433,10 @@
             }
         }
 
-        function loadJSONToNetworkList(jsonData) {
+        function loadJSONToNetworkList() {
             const networkList = document.getElementById('listofnetworks');
             clearNetworkList();
-            jsonData.forEach((network, n) => {
+            wifilist.networks.forEach((network, n) => {
                 const div = document.createElement('div');
                 div.className = 'network';
                 div.onclick = () => wifiListAction(n - 1);
@@ -278,19 +446,19 @@
 
                 const td1 = document.createElement('td');
                 const img = document.createElement('img');
-                img.src = 'img/wifi_' + (getSignalLevel(network.signal_strength) + 1) + '.png';
+                img.src = 'img/wifi_' + (getSignalLevel(network.RSSI) + 1) + '.png';
                 img.width = '50';
                 td1.appendChild(img);
 
                 const td2 = document.createElement('td');
                 const networkNameDiv = document.createElement('div');
                 networkNameDiv.className = 'network-name';
-                networkNameDiv.innerHTML = '<strong>' + network.wifi_name + '</strong>';
+                networkNameDiv.innerHTML = '<strong>' + network.SSID + '</strong>';
                 td2.appendChild(networkNameDiv);
 
                 const networkStrengthDiv = document.createElement('div');
                 networkStrengthDiv.className = 'network-strength';
-                networkStrengthDiv.innerHTML = getEncryptionTypeString(network.encryption_type_index);
+                networkStrengthDiv.innerHTML = network.Encryption;
                 td2.appendChild(networkStrengthDiv);
 
                 tr.appendChild(td1);
@@ -300,6 +468,7 @@
 
                 networkList.appendChild(div);
             });
+            setInterval(startWifiStatusLoop, 1000);
         }
 
         function wifiListAction(n) {
@@ -307,8 +476,8 @@
             //ssidField, passwordField
             const ssidField = document.getElementById('ssidField');
             const passwordField = document.getElementById('passwordField');
-            ssidField.value = wifilist[n].wifi_name;
-            passwordField.value = wifilist[n].wifi_password;
+            ssidField.value = wifilist.networks[n].SSID;
+            passwordField.value = '';
             passwordField.focus();
         }
 
@@ -399,9 +568,13 @@
         const popButton = document.querySelector(".pop-button");
         const popupContainer = document.getElementById("popupContainer");
 
-        popButton.addEventListener("click", () => {
-            popupContainer.style.display = "block";
-        });
+        function popup(b) {
+            if (b) {
+                popupContainer.style.display = "block";
+            } else {
+                popupContainer.style.display = "none";
+            }
+        }
 
         // Close the popup when the user clicks outside of it
         popupContainer.addEventListener("click", (e) => {

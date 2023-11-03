@@ -1,9 +1,11 @@
 
 #include <CODBOTS_WIFI.h>
 #include "CODBOTS_ROM.h"
+#include <ESPAsyncWebServer.h>
 
 CODBOTS_ROM rom;
 CODBOTS_WIFI wifi; 
+AsyncWebServer server(80);
 
 #define ROM_WIFI_SSID 0
 #define ROM_WIFI_PASSWORD 1
@@ -20,13 +22,16 @@ void setup() {
   //rom.clearSlot(ROM_WIFI_PASSWORD);
   //rom.writeSlot("DJAY",ROM_WIFI_SSID);
   //rom.writeSlot("andhrgsn#h123",ROM_WIFI_PASSWORD);
-
+  //Serial.println(wifi.getWifiNetworksJSON());
   wifi.setModePin(13, HIGH);
   pinMode(2, OUTPUT);
-  while (!wifi.connect()) {
+  wifi.beginServer(server);
+  wifi.connect();
+  while (!wifi.getConnectStatus()==WL_CONNECTED) {
     delay(100);
    // Serial.println("Connecting...");
     digitalWrite(2, !digitalRead(2));
+    
   }
 }
 
