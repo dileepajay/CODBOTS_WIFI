@@ -4,7 +4,6 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <WiFi.h>
-#include <CODBOTS_ROM.h>
 #include <IPAddress.h>
 #include <ESPAsyncWebServer.h>
 #include "SPIFFS.h"
