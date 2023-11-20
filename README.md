@@ -1,4 +1,4 @@
-# ESP32 WiFi Management Library
+# CODBOTS_WIFI: WiFi Management Library
 
 This library provides a flexible and easy-to-use interface for managing WiFi connections on ESP32 devices. It includes features for both Access Point (AP) and Station (STA) modes, allowing your ESP32 to function as a standalone access point or connect to an existing WiFi network.
 
