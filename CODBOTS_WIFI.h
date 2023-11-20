@@ -12,28 +12,11 @@
 class CODBOTS_WIFI
 {
 public:
-    /*
-        WL_IDLE_STATUS (0): This status indicates that the Wi-Fi library is in an idle state, meaning that no attempt to connect to a Wi-Fi network has been made.
-
-        WL_NO_SSID_AVAIL (1): This status means that there are no available Wi-Fi networks to connect to, or the specified SSID (Wi-Fi network name) cannot be found.
-
-        WL_SCAN_COMPLETED (2): This status is returned after a Wi-Fi scan has been completed. You can use it to check if a scan operation has finished.
-
-        WL_CONNECTED (3): This status indicates that the ESP32 is successfully connected to a Wi-Fi network.
-
-        WL_CONNECT_FAILED (4): This status is returned if the ESP32 failed to connect to the specified Wi-Fi network.
-
-        WL_CONNECTION_LOST (5): This status is returned if the ESP32 was previously connected to a network but lost the connection.
-
-        WL_DISCONNECTED (6): This status indicates that the ESP32 is disconnected from the Wi-Fi network. It might not be connected or is explicitly disconnected.
-    */
+    // Wi-Fi status constants
     const int WIFI_STA = 2;
     const int WIFI_AP = 1;
 
-    bool mode_sta;
-    bool mode_ap;
-
-    // List of Wi-Fi status strings
+    // Wi-Fi status strings
     const String wifiStatusStrings[8] = {
         "IDLE_STATUS",
         "NO_SSID_AVAIL",
@@ -47,55 +30,93 @@ public:
     // Default constructor
     CODBOTS_WIFI();
 
-    // Constructor that takes a reference to CODBOTS_ROM
+    // Constructor that takes a reference to CODBOTS_ROM and AsyncWebServer
     CODBOTS_WIFI(CODBOTS_ROM &rom, AsyncWebServer &server);
 
+    // Set memory addresses for Wi-Fi credentials in ROM
     void setMemory(CODBOTS_ROM &rom, int rom_ssid_, int rom_password_);
+
+    // Set the mode pin for switching between AP and STA modes
     void setModePin(int modepin, bool pindir);
+
+    // Get a string representing the signal level based on RSSI
     String getSignalLevelName(int RSSI);
+
+    // Get the signal level index based on RSSI
     int getSignalLevel(int RSSI);
+
+    // Get a JSON string with available Wi-Fi networks
     String getWifiNetworksJSON();
+
+    // Get a string representing the encryption type
     String getEncryptionTypeString(int encryptionType);
 
-    int getWifiMode(); // 1-AP,2-STA
+    // Get the current Wi-Fi mode (AP or STA)
+    int getWifiMode();
 
+    // Read Wi-Fi settings from ROM
     void readWifiSettings();
-    void connect();                      // check and connect to AP or STA
-    void connect(int mode);              // direct AP or STA
-    int getConnectStatus();              // 3-CONNECTED
-    String getConnectStatus(int status); // return string status
+
+    // Connect to Wi-Fi (automatically determine mode)
+    void connect();
+
+    // Connect to Wi-Fi with specified mode (AP or STA)
+    void connect(int mode);
+
+    // Get the connection status
+    int getConnectStatus();
+
+    // Get a string representation of the connection status
+    String getConnectStatus(int status);
+
+    // Get the connection status as a JSON string
     String getConnectStatusJSON();
-    // host start
+
+    // Get the IP address of the ESP32
+    String getIP();
+
+    // Start the AsyncWebServer
     bool beginServer(AsyncWebServer &server);
 
 private:
-    // rom details
+    // Pointer to CODBOTS_ROM instance
     CODBOTS_ROM *rom_;
+
+    // Pointer to AsyncWebServer instance
     AsyncWebServer *server_;
 
+    // ROM addresses for Wi-Fi credentials
     int rom_ssid_;
     int rom_password_;
 
-    // connect mode
+    // Mode pin details
     int modepin_;
     bool pindir_;
-    long connectstarttime;
-    int wifimode = 0;
 
+    // Connection start time
+    long connectstarttime;
+
+    // Wi-Fi mode (AP or STA)
+    int wifimode;
+
+    // Flag indicating AP mode
     bool apmode;
 
+    // Flag indicating whether the server has been started
     bool server_started;
 
-    // AP Settings
-    const char *ap_ssid = "WATCHDOG0001"; // SSID (name) of your ESP32's access point
-    const char *ap_password = "abc12345"; // Password for your ESP32's access point
-    // WIFI Settings
-    String sta_ssid;     // SSID (name)
-    String sta_password; // Password
+    // Access Point (AP) settings
+    const char *ap_ssid = "WATCHDOG0001"; // SSID of ESP32's access point
+    const char *ap_password = "abc12345"; // Password for ESP32's access point
 
+    // Station (STA) settings
+    String sta_ssid;     // SSID for STA mode
+    String sta_password; // Password for STA mode
+
+    // List of available Wi-Fi networks
     String wifi_list;
 
-    // Define arrays for signal level names and their corresponding RSSI ranges
+    // Signal level names and corresponding RSSI ranges
     const String signalLevelNames[5] = {
         "No Signal",
         "Very Weak",

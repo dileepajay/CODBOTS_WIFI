@@ -12,7 +12,10 @@ CODBOTS_WIFI::CODBOTS_WIFI(CODBOTS_ROM &rom, AsyncWebServer &server) : rom_(&rom
   // Initialize other members of CODBOTS_WIFI here if needed
 }
 
-/**/
+/*
+  Function: setMemory
+  Description: Set memory addresses for Wi-Fi credentials in ROM.
+*/
 void CODBOTS_WIFI::setMemory(CODBOTS_ROM &rom, int rom_ssid, int rom_password)
 {
   rom_ = &rom;
@@ -22,13 +25,20 @@ void CODBOTS_WIFI::setMemory(CODBOTS_ROM &rom, int rom_ssid, int rom_password)
   rom_->createSlot(rom_password_, 32);
 }
 
+/*
+  Function: setModePin
+  Description: Set the mode pin for switching between AP and STA modes.
+*/
 void CODBOTS_WIFI::setModePin(int modepin, bool pindir)
 {
   modepin_ = modepin;
   pindir_ = pindir;
 }
 
-// Function to get the signal level name based on RSSI
+/*
+  Function: getSignalLevelName
+  Description: Get the signal level name based on RSSI.
+*/
 String CODBOTS_WIFI::getSignalLevelName(int RSSI)
 {
   int index = getSignalLevel(RSSI);
@@ -39,7 +49,10 @@ String CODBOTS_WIFI::getSignalLevelName(int RSSI)
   return "Unknown";
 }
 
-// Function to get the signal level index based on RSSI
+/*
+  Function: getSignalLevel
+  Description: Get the signal level index based on RSSI.
+*/
 int CODBOTS_WIFI::getSignalLevel(int RSSI)
 {
   for (int i = 5 - 1; i >= 0; i--)
@@ -52,6 +65,10 @@ int CODBOTS_WIFI::getSignalLevel(int RSSI)
   return 0; // Default to "No Signal" if no match is found
 }
 
+/*
+  Function: getWifiNetworksJSON
+  Description: Get a JSON string with available Wi-Fi networks.
+*/
 String CODBOTS_WIFI::getWifiNetworksJSON()
 {
   Serial.println("Reading wifi list...");
@@ -84,6 +101,10 @@ String CODBOTS_WIFI::getWifiNetworksJSON()
   return jsonString;
 }
 
+/*
+  Function: getEncryptionTypeString
+  Description: Get a string representing the encryption type.
+*/
 String CODBOTS_WIFI::getEncryptionTypeString(int encryptionType)
 {
   switch (encryptionType)
@@ -102,11 +123,21 @@ String CODBOTS_WIFI::getEncryptionTypeString(int encryptionType)
     return "Unknown";
   }
 }
+
+/*
+  Function: readWifiSettings
+  Description: Read Wi-Fi settings from ROM.
+*/
 void CODBOTS_WIFI::readWifiSettings()
 {
   sta_ssid = rom_->readValues(rom_ssid_);
   sta_password = rom_->readValues(rom_password_);
 }
+
+/*
+  Function: connect
+  Description: Connect to Wi-Fi (automatically determine mode).
+*/
 void CODBOTS_WIFI::connect()
 {
   if (wifimode == 0)
@@ -125,11 +156,19 @@ void CODBOTS_WIFI::connect()
   }
 }
 
+/*
+  Function: getWifiMode
+  Description: Get the current Wi-Fi mode (AP or STA).
+*/
 int CODBOTS_WIFI::getWifiMode()
 {
   return wifimode;
 }
 
+/*
+  Function: connect
+  Description: Connect to Wi-Fi with specified mode (AP or STA).
+*/
 void CODBOTS_WIFI::connect(int mode)
 {
   if (mode == WIFI_AP)
@@ -144,21 +183,23 @@ void CODBOTS_WIFI::connect(int mode)
     WiFi.softAPConfig(apIP, apIP, subnetMask);
     apmode = true;
     mode_ap = true;
+    Serial.println("Connecting AP");
   }
   else if (mode == WIFI_STA)
   {
     WiFi.begin(sta_ssid, sta_password);
     connectstarttime = millis();
+    Serial.println("Connecting STA");
   }
   wifimode = mode;
 }
 
+/*
+  Function: getConnectStatus
+  Description: Get the connection status.
+*/
 int CODBOTS_WIFI::getConnectStatus()
 {
-  /*if(millis()-connectstarttime>timeout){
-    WiFi.disconnect();
-    return -100;//timeout
-  }*/
   if (WiFi.status() == WL_CONNECTED)
   {
     wifimode = WIFI_STA;
@@ -171,7 +212,10 @@ int CODBOTS_WIFI::getConnectStatus()
   return WiFi.status();
 }
 
-// Function to get Wi-Fi status as a string
+/*
+  Function: getConnectStatus
+  Description: Get a string representation of the connection status.
+*/
 String CODBOTS_WIFI::getConnectStatus(int status)
 {
   if (status >= 0 && status < 8)
@@ -184,65 +228,60 @@ String CODBOTS_WIFI::getConnectStatus(int status)
   }
 }
 
+/*
+  Function: beginServer
+  Description: Start the AsyncWebServer.
+*/
 bool CODBOTS_WIFI::beginServer(AsyncWebServer &server)
 {
-
   if (server_started)
   {
     return server_started;
   }
   server_ = &server;
-  // AsyncWebServer server(80);
-  // Serve static files
-  // Serve all files in the "data" folder
-  wifi_list = getWifiNetworksJSON();
-  server_->onNotFound([](AsyncWebServerRequest *request)
-                      {
-    if (request->method() == HTTP_GET) {
-      String path = request->url();
-     // Serial.println(path);
-      if (path.endsWith("/")) {
-        path += "index.html";  // Serve index.html by default when a directory is requested
-      }
-      if (SPIFFS.exists(path)) {
-        request->send(SPIFFS, path, String(), false);
-      } else {
-        request->send(404, "text/plain", "File not found");
-      }
-    } });
 
+  // Serve static files
+  wifi_list = getWifiNetworksJSON();
+  server_->onNotFound(handleStaticFiles);
+
+  // Handle requests for the /networks_list endpoint
   server_->on("/networks_list", HTTP_GET, [this](AsyncWebServerRequest *request)
               { request->send(200, "application/json", wifi_list); });
+
+  // Handle requests for the /wifi_connect endpoint
   server_->on("/wifi_connect", HTTP_GET, [this](AsyncWebServerRequest *request)
               {
     String q_ssid;
-    String q_passowrd;
+    String q_password;
 
-      // Get the 'ssid' parameter from the request
+    // Get the 'ssid' parameter from the request
     if (request->hasParam("ssid")) {
-        q_ssid = request->getParam("ssid")->value();
-        rom_->writeSlot(q_ssid,rom_ssid_);
+      q_ssid = request->getParam("ssid")->value();
+      rom_->writeSlot(q_ssid, rom_ssid_);
     }
 
     // Get the 'password' parameter from the request
     if (request->hasParam("password")) {
-        q_passowrd = request->getParam("password")->value();
-        rom_->writeSlot(q_passowrd,rom_password_);
+      q_password = request->getParam("password")->value();
+      rom_->writeSlot(q_password, rom_password_);
     }
- 
+
     readWifiSettings();
     connect(WIFI_STA);
- 
+
     request->send(200, "application/json", getConnectStatusJSON()); });
 
+  // Handle requests for the /wifi_disconnect endpoint
   server_->on("/wifi_disconnect", HTTP_GET, [this](AsyncWebServerRequest *request)
               {
     WiFi.disconnect();
     request->send(200, "application/json", getConnectStatusJSON()); });
 
+  // Handle requests for the /wifi_status endpoint
   server_->on("/wifi_status", HTTP_GET, [this](AsyncWebServerRequest *request)
               { request->send(200, "application/json", getConnectStatusJSON()); });
 
+  // Mount SPIFFS
   if (!SPIFFS.begin())
   {
     Serial.println("An error occurred while mounting SPIFFS");
@@ -252,12 +291,17 @@ bool CODBOTS_WIFI::beginServer(AsyncWebServer &server)
   {
     Serial.println("SPIFFS Started!");
   }
+
   server_->begin();
   server_started = true;
   Serial.println("Server Started!");
   return server_started;
 }
 
+/*
+  Function: getConnectStatusJSON
+  Description: Get connection status information as a JSON string.
+*/
 String CODBOTS_WIFI::getConnectStatusJSON()
 {
   StaticJsonDocument<1024> jsonDoc;
@@ -280,4 +324,13 @@ String CODBOTS_WIFI::getConnectStatusJSON()
   String jsonString;
   serializeJson(jsonDoc, jsonString);
   return jsonString;
+}
+
+/*
+  Function: getIP
+  Description: Get the IP address of the ESP32.
+*/
+String CODBOTS_WIFI::getIP()
+{
+  return WiFi.localIP().toString();
 }
