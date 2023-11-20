@@ -2,10 +2,10 @@
   Author: Dileepa Jayawardena
   Date: 2023/10/05
 
-  The provided Arduino code configures an ESP32 to connect to Wi-Fi using stored credentials in ROM. 
-  It utilizes the CODBOTS_ROM and CODBOTS_WIFI libraries, sets up a web server, and toggles a debug 
-  LED during the connection process. The device can switch between client and access point modes 
-  using a button on pin 34. Access the configuration page at the local IP address to manage 
+  The provided Arduino code configures an ESP32 to connect to Wi-Fi using stored credentials in ROM.
+  It utilizes the CODBOTS_ROM and CODBOTS_WIFI libraries, sets up a web server, and toggles a debug
+  LED during the connection process. The device can switch between client and access point modes
+  using a button on pin 34. Access the configuration page at the local IP address to manage
   Wi-Fi settings.
 */
 
@@ -30,7 +30,8 @@ AsyncWebServer server(80);
   http://(IP)/wifi_connect.html
 */
 
-void setup() {
+void setup()
+{
   // Initialize serial communication
   Serial.begin(115200);
 
@@ -56,7 +57,8 @@ void setup() {
   wifi.connect();
 
   // Wait for a successful connection
-  while (wifi.getConnectStatus() != WL_CONNECTED) {
+  while (wifi.getConnectStatus() != WL_CONNECTED)
+  {
     digitalWrite(PIN_DEBUG, !digitalRead(2));
     delay(100);
     Serial.print('.');
@@ -65,6 +67,7 @@ void setup() {
   Serial.println(wifi.getIP() + "/wifi_connect.html");
 }
 
-void loop() {
+void loop()
+{
   // Main loop code (empty in this example)
 }
