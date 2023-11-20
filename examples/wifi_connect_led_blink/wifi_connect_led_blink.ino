@@ -27,6 +27,7 @@ AsyncWebServer server(80);
 
 /*
   To access this page, upload the sketch /data folder
+  http://(IP)/index.html
   http://(IP)/wifi_connect.html
 */
 
@@ -64,7 +65,19 @@ void setup()
     Serial.print('.');
   }
   Serial.println(' ');
-  Serial.println(wifi.getIP() + "/wifi_connect.html");
+  Serial.println("http://" + wifi.getIP() + "/");
+
+  server.on("/button", HTTP_GET, [](AsyncWebServerRequest *request)
+            { 
+      bool led_input = ((request->arg("state")) == "true");
+      digitalWrite(PIN_DEBUG, led_input);
+      request->send(200, "application/json", "{\"led\":" + led_input + "}"); });
+
+  server.on("/toggle", HTTP_GET, [](AsyncWebServerRequest *request)
+            { 
+      
+      digitalWrite(PIN_DEBUG, !digitalRead(PIN_DEBUG));
+      request->send(200, "application/json", "{\"led\":" + digitalRead(PIN_DEBUG) + "}"); });
 }
 
 void loop()

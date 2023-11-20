@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Available Wi-Fi Networks</title>
+    <link rel="stylesheet" href="css/milligram.css">
+    <style>
+        :root {
+            --main-color: #ff7800;
+            --mg-primary: #0077b6;
+        }
+
+        body {
+            font-family: "Arial", sans-serif !important;
+        }
+
+
+        body {
+            margin: 0px;
+            padding: 0px;
+            ;
+        }
+
+        button,
+        input[type="submit"] {
+            background-color: var(--main-color);
+            border: none;
+        }
+
+        .title {
+            box-shadow: var(--main-color) 0px 2px 5px;
+            margin-bottom: 30px;
+        }
+
+        .expand-button {
+            cursor: pointer;
+        }
+
+        .popup-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 120, 0, 0.5);
+        }
+
+        .popup {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            text-align: center;
+            max-width: 90%;
+            /* Limit the popup width on small screens */
+        }
+
+        .popup form {
+            max-width: 100%;
+            /* Make the form width 100% on small screens */
+        }
+
+        .popup label {
+            display: block;
+            /* Stack labels on top of input fields */
+        }
+
+        .button_connect {
+            width: 100%;
+            right: 0px;
+            ;
+            background-color: var(--main-color);
+            border-radius: 2px;
+            ;
+        }
+
+        .custom-table td {
+            padding: 0;
+        }
+
+        .network {
+            box-shadow: rgb(197, 197, 197) 0px 0px 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .connected {
+            background-color: rgb(230, 255, 247);
+        }
+
+        .network:hover {
+            background-color: rgb(230, 255, 247);
+        }
+
+        .network table {
+            border: none;
+            margin: 0px;
+            width: 100%;
+            height: 100%;
+        }
+
+        .network-strength {
+            font-size: x-small;
+        }
+
+        .network table td {}
+
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        input[type="submit"] {
+            align-self: flex-end;
+        }
+
+        .note-field {
+            height: fit-content;
+            height: 40px;
+            background-color: #defcbd;
+            padding: 6px;
+            border-radius: 5px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="title" style="width: 100%;text-align: center;">
+        <img style="margin: auto;width: 50%;margin: 20px;" src="img/logo.png">
+    </div>
+    <div class="container">
+        <h4>New Wi-Fi Networks</h4>
+
+        <form>
+            <label for="username">Wi-Fi SSID (Network Name):</label>
+            <input type="text" id="ssidField" name="username" placeholder="Enter Wi-Fi SSID" required>
+
+            <label for="password">Wi-Fi Password:</label>
+            <input type="password" id="passwordField" name="password" placeholder="Enter Wi-Fi Password" required>
+            <table>
+                <tr>
+                    <td style="width: 60%;">
+
+                    </td>
+                    <td style="width: 20%;">
+                        <img src="img/loading.gif" width="30" style="float: right;">
+                    </td>
+                    <td style="width: 20%;">
+                        <input class="" type="submit" value="Connect">
+                    </td>
+                </tr>
+            </table>
+
+        </form>
+
+    </div>
+
+    <div class="container">
+        <h4>Available Wi-Fi Networks</h4>
+        <div id="listofnetworks">
+
+
+
+        </div>
+        <button class="pop-button">Refresh List</button>
+    </div>
+
+    <!-- Popup -->
+    <div class="popup-container" id="popupContainer">
+        <div class="popup">
+            <h2>Connect to Wi-Fi</h2>
+
+        </div>
+    </div>
+
+    <script>
+        var wifilist = [
+            {
+                "wifi_name": "MyWiFiNetwork1",
+                "wifi_password": "MySecurePassword1",
+                "encryption_type_index": 2,
+                "signal_strength": -10,
+                "connected_status": true
+            },
+            {
+                "wifi_name": "GuestWiFi",
+                "wifi_password": "GuestPassword123",
+                "encryption_type_index": 1,
+                "signal_strength": -60,
+                "connected_status": false
+            },
+            {
+                "wifi_name": "HomeNetwork",
+                "wifi_password": "SuperSecret123",
+                "encryption_type_index": 3,
+                "signal_strength": -80,
+                "connected_status": true
+            }, {
+                "wifi_name": "MyWiFiNetwork1",
+                "wifi_password": "MySecurePassword1",
+                "encryption_type_index": 2,
+                "signal_strength": -10,
+                "connected_status": true
+            },
+            {
+                "wifi_name": "GuestWiFi",
+                "wifi_password": "GuestPassword123",
+                "encryption_type_index": 1,
+                "signal_strength": -60,
+                "connected_status": false
+            },
+            {
+                "wifi_name": "HomeNetwork",
+                "wifi_password": "SuperSecret123",
+                "encryption_type_index": 3,
+                "signal_strength": -80,
+                "connected_status": true
+            }, {
+                "wifi_name": "MyWiFiNetwork1",
+                "wifi_password": "MySecurePassword1",
+                "encryption_type_index": 2,
+                "signal_strength": -10,
+                "connected_status": true
+            },
+            {
+                "wifi_name": "GuestWiFi",
+                "wifi_password": "GuestPassword123",
+                "encryption_type_index": 1,
+                "signal_strength": -60,
+                "connected_status": false
+            },
+            {
+                "wifi_name": "HomeNetwork",
+                "wifi_password": "SuperSecret123",
+                "encryption_type_index": 3,
+                "signal_strength": -80,
+                "connected_status": true
+            }
+        ];
+        function loadWifiList() {
+            loadJSONToNetworkList(wifilist);
+            return;
+            getJSONData('wifilist.json', (error, data) => {
+                if (error) {
+                    console.error('Error:', error);
+                } else {
+                    //console.log(data); // Your JSON data is available here
+                    wifilist = data;
+                    loadJSONToNetworkList(wifilist);
+                }
+            });
+        }
+        function clearNetworkList() {
+            const networkList = document.getElementById('listofnetworks');
+            while (networkList.firstChild) {
+                networkList.removeChild(networkList.firstChild);
+            }
+        }
+
+        function loadJSONToNetworkList(jsonData) {
+            const networkList = document.getElementById('listofnetworks');
+            clearNetworkList();
+            jsonData.forEach((network, n) => {
+                const div = document.createElement('div');
+                div.className = 'network';
+                div.onclick = () => wifiListAction(n - 1);
+                n++;
+                const table = document.createElement('table');
+                const tr = document.createElement('tr');
+
+                const td1 = document.createElement('td');
+                const img = document.createElement('img');
+                img.src = 'img/wifi_' + (getSignalLevel(network.signal_strength) + 1) + '.png';
+                img.width = '50';
+                td1.appendChild(img);
+
+                const td2 = document.createElement('td');
+                const networkNameDiv = document.createElement('div');
+                networkNameDiv.className = 'network-name';
+                networkNameDiv.innerHTML = '<strong>' + network.wifi_name + '</strong>';
+                td2.appendChild(networkNameDiv);
+
+                const networkStrengthDiv = document.createElement('div');
+                networkStrengthDiv.className = 'network-strength';
+                networkStrengthDiv.innerHTML = getEncryptionTypeString(network.encryption_type_index);
+                td2.appendChild(networkStrengthDiv);
+
+                tr.appendChild(td1);
+                tr.appendChild(td2);
+                table.appendChild(tr);
+                div.appendChild(table);
+
+                networkList.appendChild(div);
+            });
+        }
+
+        function wifiListAction(n) {
+            console.log(n);
+            //ssidField, passwordField
+            const ssidField = document.getElementById('ssidField');
+            const passwordField = document.getElementById('passwordField');
+            ssidField.value = wifilist[n].wifi_name;
+            passwordField.value = wifilist[n].wifi_password;
+            passwordField.focus();
+        }
+
+        function getEncryptionTypeString(encryptionType) {
+            switch (encryptionType) {
+                case 0:
+                    return "Open";
+                case 1:
+                    return "WEP";
+                case 2:
+                    return "WPA-PSK";
+                case 3:
+                    return "WPA2-PSK";
+                case 4:
+                    return "WPA/WPA2-PSK";
+                default:
+                    return "Unknown";
+            }
+        }
+
+        function getJSONData(url, callback) {
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    callback(null, data); // Pass the data to the callback function
+                })
+                .catch(error => {
+                    callback(error, null); // Pass the error to the callback function
+                });
+        }
+
+        // Define arrays for signal level names and their corresponding RSSI ranges
+        var signalLevelNames = [
+            "No Signal",
+            "Very Weak",
+            "Weak",
+            "Moderate",
+            "Strong"
+        ];
+
+        var signalLevelRanges = [
+            -100, // No Signal
+            -90,  // Very Weak
+            -70,  // Weak
+            -50,  // Moderate
+            0     // Strong
+        ];
+
+        // Function to get the signal level name based on RSSI
+        function getSignalLevelName(RSSI) {
+            var index = getSignalLevel(RSSI);
+            if (index >= 0 && index < signalLevelNames.length) {
+                return signalLevelNames[index];
+            }
+            return "Unknown";
+        }
+
+        // Function to get the signal level index based on RSSI
+        function getSignalLevel(RSSI) {
+            for (var i = signalLevelRanges.length - 1; i >= 0; i--) {
+                if (RSSI >= signalLevelRanges[i]) {
+                    return i;
+                }
+            }
+            return 0; // Default to "No Signal" if no match is found
+        }
+
+        window.addEventListener("load", loadWifiList());
+    </script>
+    <script>
+        // JavaScript code to handle expansion of network details and connection logic
+        const expandButtons = document.querySelectorAll(".expand-button");
+
+        expandButtons.forEach(button => {
+            button.addEventListener("click", () => {
+                const network = button.closest(".network");
+                const networkDetails = network.querySelector(".network-strength");
+                networkDetails.style.display = networkDetails.style.display === "none" ? "block" : "none";
+            });
+        });
+
+        // JavaScript code to handle the popup
+        const popButton = document.querySelector(".pop-button");
+        const popupContainer = document.getElementById("popupContainer");
+
+        popButton.addEventListener("click", () => {
+            popupContainer.style.display = "block";
+        });
+
+        // Close the popup when the user clicks outside of it
+        popupContainer.addEventListener("click", (e) => {
+            if (e.target === popupContainer) {
+                popupContainer.style.display = "none";
+            }
+        });
+    </script>
+</body>
+
+</html>

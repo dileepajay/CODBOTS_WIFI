@@ -16,6 +16,9 @@ public:
     const int WIFI_STA = 2;
     const int WIFI_AP = 1;
 
+    bool mode_sta;
+    bool mode_ap;
+
     // Wi-Fi status strings
     const String wifiStatusStrings[8] = {
         "IDLE_STATUS",

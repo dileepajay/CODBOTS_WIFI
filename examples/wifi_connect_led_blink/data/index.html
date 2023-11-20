@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Available Wi-Fi Networks</title>
+    <link rel="stylesheet" href="css/milligram.css">
+    <style>
+        :root {
+            --main-color: #ff7800;
+            --mg-primary: #0077b6;
+        }
+
+        body {
+            font-family: "Arial", sans-serif !important;
+        }
+    </style>
+    <script>
+        function getData(url, callback) {
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response;
+                })
+                .then(data => {
+                    callback(null, data); // Pass the data to the callback function
+                })
+                .catch(error => {
+                    callback(error, null); // Pass the error to the callback function
+                });
+        }
+
+        function toggle() {
+            getData('toggle', (error, data) => {
+                if (error) {
+                    console.error('Error:', error);
+                } else {
+                    var json = data.json();
+                    var text = "LED TOGGLE:ON";
+                    if (json.led) {
+                        text = "LED TOGGLE:OFF";
+                    }
+                    document.getElementById('toggle_button').innerText = text;
+                }
+            });
+        }
+
+        function lef_on() {
+            getData('button?state=true', (error, data) => {
+                if (error) {
+                    console.error('Error:', error);
+                } else {
+                    var json = data.json();
+                    var text = "LED TOGGLE:ON";
+                    if (json.led) {
+                        text = "LED TOGGLE:OFF";
+                    }
+                    document.getElementById('toggle_button').innerText = text;
+                }
+            });
+        }
+
+        function led_off() {
+            getData('button?state=false', (error, data) => {
+                if (error) {
+                    console.error('Error:', error);
+                } else {
+                    var json = data.json();
+                    var text = "LED TOGGLE:ON";
+                    if (json.led) {
+                        text = "LED TOGGLE:OFF";
+                    }
+                    document.getElementById('toggle_button').innerText = text;
+                }
+            });
+        }
+    </script>
+</head>
+
+<body>
+    <button id="toggle_button" onclick="toggle()">LED TOGGLE:-</button>
+</body>
+
+</html>

@@ -242,7 +242,20 @@ bool CODBOTS_WIFI::beginServer(AsyncWebServer &server)
 
   // Serve static files
   wifi_list = getWifiNetworksJSON();
-  server_->onNotFound(handleStaticFiles);
+  server_->onNotFound([](AsyncWebServerRequest *request)
+                      {
+    if (request->method() == HTTP_GET) {
+      String path = request->url();
+     // Serial.println(path);
+      if (path.endsWith("/")) {
+        path += "index.html";  // Serve index.html by default when a directory is requested
+      }
+      if (SPIFFS.exists(path)) {
+        request->send(SPIFFS, path, String(), false);
+      } else {
+        request->send(404, "text/plain", "File not found");
+      }
+    } });
 
   // Handle requests for the /networks_list endpoint
   server_->on("/networks_list", HTTP_GET, [this](AsyncWebServerRequest *request)
