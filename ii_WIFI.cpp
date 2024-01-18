@@ -1,22 +1,22 @@
-#include "CODBOTS_WIFI.h"
+#include "ii_WIFI.h"
 
 // Default constructor
-CODBOTS_WIFI::CODBOTS_WIFI() : rom_(nullptr), server_(nullptr)
+ii_WIFI::ii_WIFI() : rom_(nullptr), server_(nullptr)
 {
-  // Initialize other members of CODBOTS_WIFI here if needed
+  // Initialize other members of ii_WIFI here if needed
 }
 
-// Constructor that takes a reference to CODBOTS_ROM and a pointer to AsyncWebServer
-CODBOTS_WIFI::CODBOTS_WIFI(CODBOTS_ROM &rom, AsyncWebServer &server) : rom_(&rom), server_(&server)
+// Constructor that takes a reference to ii_ROM and a pointer to AsyncWebServer
+ii_WIFI::ii_WIFI(ii_ROM &rom, AsyncWebServer &server) : rom_(&rom), server_(&server)
 {
-  // Initialize other members of CODBOTS_WIFI here if needed
+  // Initialize other members of ii_WIFI here if needed
 }
 
 /*
   Function: setMemory
   Description: Set memory addresses for Wi-Fi credentials in ROM.
 */
-void CODBOTS_WIFI::setMemory(CODBOTS_ROM &rom, int rom_ssid, int rom_password)
+void ii_WIFI::setMemory(ii_ROM &rom, int rom_ssid, int rom_password)
 {
   rom_ = &rom;
   rom_ssid_ = rom_ssid;
@@ -29,7 +29,7 @@ void CODBOTS_WIFI::setMemory(CODBOTS_ROM &rom, int rom_ssid, int rom_password)
   Function: setModePin
   Description: Set the mode pin for switching between AP and STA modes.
 */
-void CODBOTS_WIFI::setModePin(int modepin, bool pindir)
+void ii_WIFI::setModePin(int modepin, bool pindir)
 {
   modepin_ = modepin;
   pindir_ = pindir;
@@ -39,7 +39,7 @@ void CODBOTS_WIFI::setModePin(int modepin, bool pindir)
   Function: getSignalLevelName
   Description: Get the signal level name based on RSSI.
 */
-String CODBOTS_WIFI::getSignalLevelName(int RSSI)
+String ii_WIFI::getSignalLevelName(int RSSI)
 {
   int index = getSignalLevel(RSSI);
   if (index >= 0 && index < 5)
@@ -53,7 +53,7 @@ String CODBOTS_WIFI::getSignalLevelName(int RSSI)
   Function: getSignalLevel
   Description: Get the signal level index based on RSSI.
 */
-int CODBOTS_WIFI::getSignalLevel(int RSSI)
+int ii_WIFI::getSignalLevel(int RSSI)
 {
   for (int i = 5 - 1; i >= 0; i--)
   {
@@ -69,7 +69,7 @@ int CODBOTS_WIFI::getSignalLevel(int RSSI)
   Function: getWifiNetworksJSON
   Description: Get a JSON string with available Wi-Fi networks.
 */
-String CODBOTS_WIFI::getWifiNetworksJSON()
+String ii_WIFI::getWifiNetworksJSON()
 {
   Serial.println("Reading wifi list...");
   // Create a JSON array
@@ -105,7 +105,7 @@ String CODBOTS_WIFI::getWifiNetworksJSON()
   Function: getEncryptionTypeString
   Description: Get a string representing the encryption type.
 */
-String CODBOTS_WIFI::getEncryptionTypeString(int encryptionType)
+String ii_WIFI::getEncryptionTypeString(int encryptionType)
 {
   switch (encryptionType)
   {
@@ -128,7 +128,7 @@ String CODBOTS_WIFI::getEncryptionTypeString(int encryptionType)
   Function: readWifiSettings
   Description: Read Wi-Fi settings from ROM.
 */
-void CODBOTS_WIFI::readWifiSettings()
+void ii_WIFI::readWifiSettings()
 {
   sta_ssid = rom_->readValues(rom_ssid_);
   sta_password = rom_->readValues(rom_password_);
@@ -138,7 +138,7 @@ void CODBOTS_WIFI::readWifiSettings()
   Function: connect
   Description: Connect to Wi-Fi (automatically determine mode).
 */
-void CODBOTS_WIFI::connect()
+void ii_WIFI::connect()
 {
   if (wifimode == 0)
   {
@@ -160,7 +160,7 @@ void CODBOTS_WIFI::connect()
   Function: getWifiMode
   Description: Get the current Wi-Fi mode (AP or STA).
 */
-int CODBOTS_WIFI::getWifiMode()
+int ii_WIFI::getWifiMode()
 {
   return wifimode;
 }
@@ -169,7 +169,7 @@ int CODBOTS_WIFI::getWifiMode()
   Function: connect
   Description: Connect to Wi-Fi with specified mode (AP or STA).
 */
-void CODBOTS_WIFI::connect(int mode)
+void ii_WIFI::connect(int mode)
 {
   if (mode == WIFI_AP)
   {
@@ -198,7 +198,7 @@ void CODBOTS_WIFI::connect(int mode)
   Function: getConnectStatus
   Description: Get the connection status.
 */
-int CODBOTS_WIFI::getConnectStatus()
+int ii_WIFI::getConnectStatus()
 {
   if (WiFi.status() == WL_CONNECTED)
   {
@@ -216,7 +216,7 @@ int CODBOTS_WIFI::getConnectStatus()
   Function: getConnectStatus
   Description: Get a string representation of the connection status.
 */
-String CODBOTS_WIFI::getConnectStatus(int status)
+String ii_WIFI::getConnectStatus(int status)
 {
   if (status >= 0 && status < 8)
   {
@@ -232,7 +232,7 @@ String CODBOTS_WIFI::getConnectStatus(int status)
   Function: beginServer
   Description: Start the AsyncWebServer.
 */
-bool CODBOTS_WIFI::beginServer(AsyncWebServer &server)
+bool ii_WIFI::beginServer(AsyncWebServer &server)
 {
   if (server_started)
   {
@@ -315,7 +315,7 @@ bool CODBOTS_WIFI::beginServer(AsyncWebServer &server)
   Function: getConnectStatusJSON
   Description: Get connection status information as a JSON string.
 */
-String CODBOTS_WIFI::getConnectStatusJSON()
+String ii_WIFI::getConnectStatusJSON()
 {
   StaticJsonDocument<1024> jsonDoc;
   JsonObject statusjs = jsonDoc.to<JsonObject>();
@@ -343,7 +343,7 @@ String CODBOTS_WIFI::getConnectStatusJSON()
   Function: getIP
   Description: Get the IP address of the ESP32.
 */
-String CODBOTS_WIFI::getIP()
+String ii_WIFI::getIP()
 {
   return WiFi.localIP().toString();
 }

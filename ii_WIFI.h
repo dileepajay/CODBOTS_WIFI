@@ -1,15 +1,15 @@
-#ifndef CODBOTS_WIFI_H
-#define CODBOTS_WIFI_H
+#ifndef ii_WIFI_H
+#define ii_WIFI_H
 
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <WiFi.h>
-#include <CODBOTS_ROM.h>
+#include <ii_ROM.h>
 #include <IPAddress.h>
 #include <ESPAsyncWebServer.h>
 #include "SPIFFS.h"
 
-class CODBOTS_WIFI
+class ii_WIFI
 {
 public:
     // Wi-Fi status constants
@@ -31,13 +31,13 @@ public:
         "TIMEOUT"};
 
     // Default constructor
-    CODBOTS_WIFI();
+    ii_WIFI();
 
-    // Constructor that takes a reference to CODBOTS_ROM and AsyncWebServer
-    CODBOTS_WIFI(CODBOTS_ROM &rom, AsyncWebServer &server);
+    // Constructor that takes a reference to ii_ROM and AsyncWebServer
+    ii_WIFI(ii_ROM &rom, AsyncWebServer &server);
 
     // Set memory addresses for Wi-Fi credentials in ROM
-    void setMemory(CODBOTS_ROM &rom, int rom_ssid_, int rom_password_);
+    void setMemory(ii_ROM &rom, int rom_ssid_, int rom_password_);
 
     // Set the mode pin for switching between AP and STA modes
     void setModePin(int modepin, bool pindir);
@@ -82,8 +82,8 @@ public:
     bool beginServer(AsyncWebServer &server);
 
 private:
-    // Pointer to CODBOTS_ROM instance
-    CODBOTS_ROM *rom_;
+    // Pointer to ii_ROM instance
+    ii_ROM *rom_;
 
     // Pointer to AsyncWebServer instance
     AsyncWebServer *server_;

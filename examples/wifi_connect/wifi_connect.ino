@@ -1,10 +1,10 @@
 
-#include <CODBOTS_WIFI.h>
-#include "CODBOTS_ROM.h"
+#include <ii_WIFI.h>
+#include "ii_ROM.h"
 #include <ESPAsyncWebServer.h>
 
-CODBOTS_ROM rom;
-CODBOTS_WIFI wifi; 
+ii_ROM rom;
+ii_WIFI wifi; 
 AsyncWebServer server(80);
 
 #define ROM_WIFI_SSID 0
