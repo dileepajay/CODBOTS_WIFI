@@ -7,7 +7,7 @@
 #include <ii_ROM.h>
 #include <IPAddress.h>
 #include <ESPAsyncWebServer.h>
-#include "SPIFFS.h"
+#include <SPIFFS.h>
 
 class ii_WIFI
 {
@@ -77,6 +77,8 @@ public:
 
     // Get the IP address of the ESP32
     String getIP();
+
+    String getConnectDetails();
 
     // Start the AsyncWebServer
     bool beginServer(AsyncWebServer &server);

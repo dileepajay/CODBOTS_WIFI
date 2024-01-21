@@ -345,5 +345,27 @@ String ii_WIFI::getConnectStatusJSON()
 */
 String ii_WIFI::getIP()
 {
+  if (getWifiMode() == WIFI_AP)
+  {
+    return WiFi.softAPIP().toString();
+  }
   return WiFi.localIP().toString();
+}
+
+String ii_WIFI::getConnectDetails()
+{
+  String details = "";
+  if (getWifiMode() == WIFI_AP)
+  {
+    details = "Mode: Access Point\n";
+    details += "SSID:" + ap_ssid + "\tPW:" + ap_password + '\n';
+    details += getIP();
+  }
+  else if (getWifiMode() == WIFI_STA)
+  {
+    details = "Mode: Station\n";
+    details += "Connected to SSID:" + sta_ssid + "\tPW:*****\n";
+    details += getIP();
+  }
+  return details;
 }
