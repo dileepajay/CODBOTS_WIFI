@@ -82,7 +82,7 @@ String ii_WIFI::getWifiNetworksJSON()
   }
   else
   {
-    String list = "["; // Start of the JSON array
+    list = "["; // Start of the JSON array
 
     for (int i = 0; i < WiFi.scanNetworks(); i++)
     {
@@ -364,4 +364,9 @@ String ii_WIFI::getConnectDetails()
     details += getIP();
   }
   return details;
+}
+
+bool ii_WIFI::isConnecting()
+{
+  return getWifiMode() == WIFI_STA && getConnectStatus() != WL_CONNECTED;
 }

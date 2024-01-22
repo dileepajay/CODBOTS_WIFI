@@ -20,16 +20,17 @@ void setup()
 
     wifi.setMemory(rom, ROM_WIFI_SSID, ROM_WIFI_PASSWORD);
 
-    wifi.setModePin(13, HIGH);
+    wifi.setModePin(15, HIGH);
     pinMode(2, OUTPUT);
     wifi.beginServer(server);
     wifi.connect();
-    while (!wifi.getConnectStatus() == WL_CONNECTED)
+    while (wifi.isConnecting())
     {
         delay(100);
-        Serial.println("Connecting...");
+        Serial.print(".");
         digitalWrite(2, !digitalRead(2));
     }
+    Serial.println(".");
     Serial.println(wifi.getConnectDetails());
 }
 

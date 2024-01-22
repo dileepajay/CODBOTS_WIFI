@@ -82,6 +82,8 @@ public:
     // Start the AsyncWebServer
     bool beginServer(AsyncWebServer &server);
 
+    bool isConnecting();
+
 private:
     // Pointer to ii_ROM instance
     ii_ROM *rom_;
@@ -111,7 +113,7 @@ private:
 
     // Access Point (AP) settings
     const char *ap_ssid = "WATCHDOG0001x"; // SSID of ESP32's access point
-    const char *ap_password = "abc12345"; // Password for ESP32's access point
+    const char *ap_password = "abc12345";  // Password for ESP32's access point
 
     // Station (STA) settings
     String sta_ssid;     // SSID for STA mode
