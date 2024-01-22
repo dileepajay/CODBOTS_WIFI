@@ -364,8 +364,16 @@ String ii_WIFI::getConnectDetails()
   else if (getWifiMode() == WIFI_STA)
   {
     details = "Mode: Station\n";
-    details += "Connected to SSID:" + String(sta_ssid) + "\tPW:*****\n";
-    details += getIP();
+    if (getConnectStatus() == WL_CONNECTED)
+    {
+      details += "Connected to SSID:" + String(sta_ssid) + "\tPW:*****\n";
+      details += getIP();
+    }
+    else
+    {
+      details += "*Not Connected to SSID:" + String(sta_ssid) + "\tPW:*****\n";
+      details += "Check Wifi Connection or Start AccessPoint for debug!";
+    }
   }
   return details;
 }
