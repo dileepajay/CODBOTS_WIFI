@@ -21,8 +21,8 @@ void ii_WIFI::setMemory(ii_ROM &rom, int rom_ssid, int rom_password)
   rom_ = &rom;
   rom_ssid_ = rom_ssid;
   rom_password_ = rom_password;
-  rom_->createSlot(rom_ssid_, 32);
-  rom_->createSlot(rom_password_, 32);
+  rom_->create(rom_ssid_, 32);
+  rom_->create(rom_password_, 32);
 }
 
 /*
@@ -130,8 +130,8 @@ String ii_WIFI::getEncryptionTypeString(int encryptionType)
 */
 void ii_WIFI::readWifiSettings()
 {
-  sta_ssid = rom_->readValues(rom_ssid_);
-  sta_password = rom_->readValues(rom_password_);
+  sta_ssid = rom_->read(rom_ssid_);
+  sta_password = rom_->read(rom_password_);
 }
 
 /*
@@ -270,13 +270,13 @@ bool ii_WIFI::beginServer(AsyncWebServer &server)
     // Get the 'ssid' parameter from the request
     if (request->hasParam("ssid")) {
       q_ssid = request->getParam("ssid")->value();
-      rom_->writeSlot(q_ssid, rom_ssid_);
+      rom_->write(q_ssid, rom_ssid_);
     }
 
     // Get the 'password' parameter from the request
     if (request->hasParam("password")) {
       q_password = request->getParam("password")->value();
-      rom_->writeSlot(q_password, rom_password_);
+      rom_->write(q_password, rom_password_);
     }
 
     readWifiSettings();
@@ -358,13 +358,13 @@ String ii_WIFI::getConnectDetails()
   if (getWifiMode() == WIFI_AP)
   {
     details = "Mode: Access Point\n";
-    details += "SSID:" + ap_ssid + "\tPW:" + ap_password + '\n';
+    details += "SSID:" + String(ap_ssid) + "\tPW:" + String(ap_password) + '\n';
     details += getIP();
   }
   else if (getWifiMode() == WIFI_STA)
   {
     details = "Mode: Station\n";
-    details += "Connected to SSID:" + sta_ssid + "\tPW:*****\n";
+    details += "Connected to SSID:" + String(sta_ssid) + "\tPW:*****\n";
     details += getIP();
   }
   return details;
