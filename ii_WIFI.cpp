@@ -320,15 +320,15 @@ String ii_WIFI::getConnectStatusJSON()
 
   data += "{";
   data += "\"AP\": " + String(apmode ? "true" : "false") + ",";
-  data += "\"AP_ssid\": \"" + ap_ssid + "\",";
-  data += "\"AP_password\": \"" + ap_password + "\",";
+  data += "\"AP_ssid\": \"" + String(ap_ssid) + "\",";
+  data += "\"AP_password\": \"" + String(ap_password) + "\",";
   data += "\"AP_ip\": \"192.168.1.1\",";
   data += "\"STA\": " + String(status) + ",";
   data += "\"STA_status\": \"" + getConnectStatus(status) + "\",";
-  data += "\"STA_ssid\": \"" + sta_ssid + "\",";
+  data += "\"STA_ssid\": \"" + String(sta_ssid) + "\",";
   data += "\"STA_password\": " + String(sta_password.length()) + ",";
   data += "\"STA_time\": " + String(connectstarttime) + ",";
-  data += "\"STA_ip\": \"" + WiFi.localIP() + "\",";
+  data += "\"STA_ip\": \"" + String(WiFi.localIP().toString()) + "\",";
   data += "\"pingtime\": " + String(millis());
   data += "}";
 
