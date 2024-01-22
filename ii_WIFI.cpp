@@ -78,16 +78,24 @@ String ii_WIFI::getWifiNetworksJSON()
   Serial.println("Scanned...");
   if (numNetworks == 0)
   {
-    networks.add("No networks found");
+    // networks.add("No networks found");
   }
   else
   {
-    for (int i = 0; i < numNetworks; i++)
+    String list = "["; // Start of the JSON array
+
+    for (int i = 0; i < WiFi.scanNetworks(); i++)
     {
-      list += "{\"SSID\" : \"" + WiFi.SSID(i) + "\",\"RSSI\" : " + WiFi.RSSI(i) + ", \"Encryption\" : \"" + getEncryptionTypeString(WiFi.encryptionType(i)) + "\"}, ";
+      if (i > 0)
+      {
+        list += ", "; // Add a comma before adding the next object, except for the first one
+      }
+      list += "{\"SSID\": \"" + WiFi.SSID(i) + "\", \"RSSI\": " + String(WiFi.RSSI(i)) + ", \"Encryption\": \"" + getEncryptionTypeString(WiFi.encryptionType(i)) + "\"}";
     }
+
+    list += "]"; // End of the JSON array
   }
-  return "{\"networks\": [" + list + "]}";
+  return "{\"networks\": " + list + "}";
 }
 
 /*
