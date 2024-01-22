@@ -27,9 +27,10 @@ void setup()
     while (!wifi.getConnectStatus() == WL_CONNECTED)
     {
         delay(100);
-        // Serial.println("Connecting...");
+        Serial.println("Connecting...");
         digitalWrite(2, !digitalRead(2));
     }
+    Serial.println(wifi.getConnectDetails());
 }
 
 void loop()
