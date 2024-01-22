@@ -72,9 +72,9 @@ int ii_WIFI::getSignalLevel(int RSSI)
 String ii_WIFI::getWifiNetworksJSON()
 {
   Serial.println("Reading wifi list...");
-  // Create a JSON array
-  ArduinoJson::DynamicJsonDocument jsonDoc(1024);
 
+  // Create a JSON document
+  ArduinoJson::JsonDocument jsonDoc(1024);
   JsonArray networks = jsonDoc.createNestedArray("networks");
 
   int numNetworks = WiFi.scanNetworks();
