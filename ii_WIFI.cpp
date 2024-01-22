@@ -69,37 +69,25 @@ int ii_WIFI::getSignalLevel(int RSSI)
   Function: getWifiNetworksJSON
   Description: Get a JSON string with available Wi-Fi networks.
 */
+
 String ii_WIFI::getWifiNetworksJSON()
 {
   Serial.println("Reading wifi list...");
-
-  // Create a JSON document
-  ArduinoJson::JsonDocument jsonDoc(1024);
-  JsonArray networks = jsonDoc.createNestedArray("networks");
-
+  String list = "";
   int numNetworks = WiFi.scanNetworks();
   Serial.println("Scanned...");
   if (numNetworks == 0)
   {
-    // No networks found
     networks.add("No networks found");
   }
   else
   {
     for (int i = 0; i < numNetworks; i++)
     {
-      JsonObject network = networks.createNestedObject();
-      network["SSID"] = WiFi.SSID(i);
-      network["RSSI"] = WiFi.RSSI(i);
-      network["Encryption"] = getEncryptionTypeString(WiFi.encryptionType(i));
+      list += "{\"SSID\" : \"" + WiFi.SSID(i) + "\",\"RSSI\" : " + WiFi.RSSI(i) + ", \"Encryption\" : \"" + getEncryptionTypeString(WiFi.encryptionType(i)) + "\"}, ";
     }
   }
-
-  // Serialize the JSON to a string
-  String jsonString;
-  serializeJson(jsonDoc, jsonString);
-  Serial.println(jsonString);
-  return jsonString;
+  return "{\"networks\": [" + list + "]}";
 }
 
 /*
@@ -318,26 +306,25 @@ bool ii_WIFI::beginServer(AsyncWebServer &server)
 */
 String ii_WIFI::getConnectStatusJSON()
 {
-  StaticJsonDocument<1024> jsonDoc;
-  JsonObject statusjs = jsonDoc.to<JsonObject>();
-  statusjs["AP"] = apmode;
-  statusjs["AP_ssid"] = ap_ssid;
-  statusjs["AP_password"] = ap_password;
-  statusjs["AP_ip"] = "192.168.1.1";
+  String data = "";
 
   int status = getConnectStatus();
-  statusjs["STA"] = status;
-  statusjs["STA_status"] = getConnectStatus(status);
-  statusjs["STA_ssid"] = sta_ssid;
-  statusjs["STA_password"] = sta_password.length();
-  statusjs["STA_time"] = connectstarttime;
-  statusjs["STA_ip"] = WiFi.localIP();
 
-  statusjs["pingtime"] = millis();
+  data += "{";
+  data += "\"AP\": " + String(apmode ? "true" : "false") + ",";
+  data += "\"AP_ssid\": \"" + ap_ssid + "\",";
+  data += "\"AP_password\": \"" + ap_password + "\",";
+  data += "\"AP_ip\": \"192.168.1.1\",";
+  data += "\"STA\": " + String(status) + ",";
+  data += "\"STA_status\": \"" + getConnectStatus(status) + "\",";
+  data += "\"STA_ssid\": \"" + sta_ssid + "\",";
+  data += "\"STA_password\": " + String(sta_password.length()) + ",";
+  data += "\"STA_time\": " + String(connectstarttime) + ",";
+  data += "\"STA_ip\": \"" + WiFi.localIP() + "\",";
+  data += "\"pingtime\": " + String(millis());
+  data += "}";
 
-  String jsonString;
-  serializeJson(jsonDoc, jsonString);
-  return jsonString;
+  return data;
 }
 
 /*

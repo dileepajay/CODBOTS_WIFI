@@ -2,7 +2,6 @@
 #define ii_WIFI_H
 
 #include <Arduino.h>
-#include <ArduinoJson.h>
 #include <WiFi.h>
 #include <ii_ROM.h>
 #include <IPAddress.h>
