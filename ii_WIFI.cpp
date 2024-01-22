@@ -75,7 +75,7 @@ String ii_WIFI::getWifiNetworksJSON()
   Serial.println("Reading wifi list...");
   String list = "";
   int numNetworks = WiFi.scanNetworks();
-  Serial.println("Scanned...");
+
   if (numNetworks == 0)
   {
     // networks.add("No networks found");
@@ -84,7 +84,7 @@ String ii_WIFI::getWifiNetworksJSON()
   {
     list = "["; // Start of the JSON array
 
-    for (int i = 0; i < WiFi.scanNetworks(); i++)
+    for (int i = 0; i < numNetworks; i++)
     {
       if (i > 0)
       {
@@ -95,6 +95,7 @@ String ii_WIFI::getWifiNetworksJSON()
 
     list += "]"; // End of the JSON array
   }
+  Serial.println(list);
   return "{\"networks\": " + list + "}";
 }
 
@@ -139,8 +140,7 @@ void ii_WIFI::connect()
 {
   if (wifimode == 0)
   {
-    pinMode(modepin_, INPUT);
-    bool modeswitch = digitalRead(modepin_);
+
     readWifiSettings();
     if (modeswitch || sta_ssid.isEmpty())
     {
@@ -235,6 +235,10 @@ bool ii_WIFI::beginServer(AsyncWebServer &server)
   {
     return server_started;
   }
+
+  pinMode(modepin_, INPUT);
+  modeswitch = digitalRead(modepin_);
+
   server_ = &server;
 
   // Serve static files
@@ -368,5 +372,5 @@ String ii_WIFI::getConnectDetails()
 
 bool ii_WIFI::isConnecting()
 {
-  return getWifiMode() == WIFI_STA && getConnectStatus() != WL_CONNECTED;
+  return getWifiMode() == WIFI_STA && getConnectStatus() != WL_CONNECTED && (millis() - connectstarttime) < connect_timeout;
 }

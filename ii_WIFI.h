@@ -101,6 +101,9 @@ private:
 
     // Connection start time
     long connectstarttime;
+    int connect_timeout = 10000; // 10seconds
+
+    bool modeswitch;
 
     // Wi-Fi mode (AP or STA)
     int wifimode;
