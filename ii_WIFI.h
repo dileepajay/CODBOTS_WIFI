@@ -84,6 +84,8 @@ public:
 
     bool isConnecting();
 
+    void autoAP(bool auto);
+
 private:
     // Pointer to ii_ROM instance
     ii_ROM *rom_;
@@ -110,6 +112,8 @@ private:
 
     // Flag indicating AP mode
     bool apmode;
+
+    bool autoap;
 
     // Flag indicating whether the server has been started
     bool server_started;

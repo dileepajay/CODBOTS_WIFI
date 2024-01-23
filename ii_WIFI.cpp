@@ -378,7 +378,17 @@ String ii_WIFI::getConnectDetails()
   return details;
 }
 
+void ii_WIFI::autoAP(bool auto)
+{
+  autoap = auto;
+}
+
 bool ii_WIFI::isConnecting()
 {
-  return getWifiMode() == WIFI_STA && getConnectStatus() != WL_CONNECTED && (millis() - connectstarttime) < connect_timeout;
+  bool b = getWifiMode() == WIFI_STA && getConnectStatus() != WL_CONNECTED && (millis() - connectstarttime) < connect_timeout;
+  if (autoap && !b && getConnectStatus() != WL_CONNECTED)
+  {
+    connect(WIFI_AP);
+  }
+  return b;
 }

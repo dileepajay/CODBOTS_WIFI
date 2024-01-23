@@ -4,82 +4,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ii_Wifi_basicExample</title>
+    <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/milligram.css">
-    <title>Milligram CSS Examples</title>
+    <link rel="stylesheet" href="css/css.css">
+    <style>
+        body {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        header img {
+            height: 60px;
+            width: 60px;
+        }
+
+        button {
+            margin: 10px;
+        }
+    </style>
 </head>
 
 <body>
-    <!-- Header -->
     <header>
-        <h1>HTML Examples</h1>
+        <table>
+            <tr>
+                <td>
+                    <img src="img/logo.png" alt="Logo">
+                </td>
+                <td>
+                    <h3>ii_WIFI.h Basic Example</h3>
+                </td>
+            </tr>
+        </table>
     </header>
-
-    <!-- Navigation Menu -->
-    <nav>
-        <ul>
-            <li><a href="#">Home</a></li>
-            <li><a href="#">About</a></li>
-            <li><a href="#">Services</a></li>
-            <li><a href="#">Contact</a></li>
-        </ul>
-    </nav>
-
-    <!-- Button -->
-    <button class="button">Click Me</button>
-
-    <!-- Text Input -->
-    <label for="name">Name:</label>
-    <input type="text" id="name" class="input" placeholder="Enter your name">
-
-    <!-- Textarea -->
-    <label for="message">Message:</label>
-    <textarea id="message" class="input" placeholder="Enter your message"></textarea>
-
-    <!-- Select Dropdown -->
-    <label for="country">Country:</label>
-    <select id="country" class="input">
-        <option value="us">United States</option>
-        <option value="ca">Canada</option>
-        <option value="uk">United Kingdom</option>
-    </select>
-
-    <!-- Checkbox -->
-    <label class="label"><input type="checkbox"> Remember me</label>
-
-    <!-- Radio Buttons -->
-    <label class="label"><input type="radio" name="gender" value="male"> Male</label>
-    <label class="label"><input type="radio" name="gender" value="female"> Female</label>
-
-    <!-- Table -->
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Age</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>John Doe</td>
-                <td>30</td>
-            </tr>
-            <tr>
-                <td>Jane Smith</td>
-                <td>25</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <!-- Card -->
-    <div class="card">
-        <h2>Card Title</h2>
-        <p>This is a simple card.</p>
+    <div class="description" style="text-align: left;">
+        This page enables direct interaction with WiFi-connected LEDs. Utilize
+        the
+        LED ON/OFF buttons for immediate effect and access WiFi settings for device configuration.
+    </div>
+    <br><br>
+    <div>
+        <label>Test LED (Default:GPIO-02:ESP32)</label>
+        <button onclick="getData('/ledon', handleResponse)">LED ON</button>
+        <button onclick="getData('/ledoff', handleResponse)">LED OFF</button>
     </div>
 
-    <!-- Footer -->
-    <footer>
-        &copy; HTML Examples
-    </footer>
+    <div>
+        <label>Wifi AP/STA</label>
+        <button onclick="window.location.href='/wifi_connect.html'">Settings</button>
+    </div>
+    <br><br>
+    <div class="note" style="text-align: left;">
+        <strong>Note:</strong>
+        <ul>
+            <li>Click the <strong>LED ON</strong> button to send a request to the server at <code>/ledon</code>, turning
+                the
+                LED on.</li>
+            <li>Click the <strong>LED OFF</strong> button to send a request to the server at <code>/ledoff</code>,
+                turning
+                the LED off.</li>
+            <li>Click the <strong>Settings</strong> button to navigate to <code>wifi_connect.html</code> for WiFi
+                configuration options.</li>
+        </ul>
+    </div>
+
+
+    <script>
+        function getData(url, callback) {
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response;
+                })
+                .then(data => {
+                    callback(null, data); // Pass the data to the callback function
+                })
+                .catch(error => {
+                    callback(error, null); // Pass the error to the callback function
+                });
+        }
+
+        function handleResponse(error, data) {
+            if (error) {
+                alert('Fetch Error: ' + error);
+            } else {
+                alert('Data Received: ' + data);
+            }
+        }
+
+    </script>
 </body>
 
 </html>
