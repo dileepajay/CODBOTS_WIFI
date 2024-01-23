@@ -84,7 +84,7 @@ public:
 
     bool isConnecting();
 
-    void autoAP(bool auto);
+    void autoAP(bool autoap_);
 
 private:
     // Pointer to ii_ROM instance

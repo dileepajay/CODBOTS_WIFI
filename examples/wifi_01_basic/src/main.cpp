@@ -12,6 +12,7 @@ AsyncWebServer server(80);
 
 #define PIN_DEBUG 2
 #define PIN_WIFI 15
+void initServer();
 
 void setup()
 {

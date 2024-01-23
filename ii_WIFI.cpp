@@ -378,9 +378,9 @@ String ii_WIFI::getConnectDetails()
   return details;
 }
 
-void ii_WIFI::autoAP(bool auto)
+void ii_WIFI::autoAP(bool autoap_)
 {
-  autoap = auto;
+  autoap = autoap_;
 }
 
 bool ii_WIFI::isConnecting()
