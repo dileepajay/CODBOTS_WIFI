@@ -1,16 +1,13 @@
 # ii_WIFI Library
 
-## Features
-- Simplify connecting to Wi-Fi networks
-- Manage network settings and configurations
-- Efficient handling of Wi-Fi communication
-- Additional features specific to the library...
-
 The ii_WIFI library is tailored for effortless management of Wi-Fi connectivity on ESP32 devices. It simplifies the process of establishing and maintaining Wi-Fi connections. Upon device startup, it automatically initiates an access point, allowing users to connect and update Wi-Fi credentials seamlessly. In conjunction with the ii_ROM.h library, Wi-Fi credentials are securely stored in ROM, enabling the device to automatically reconnect to the specified Wi-Fi network every time it starts.
 
 Additionally, the library facilitates easy management of server APIs and a File Server, making it a versatile tool for networked ESP32 projects. Here is the simplest way to get started with the ii_WIFI library for establishing a Wi-Fi connection.
+
+![Example GIF](examples/lib_image.jpg)
+
  
-   ```cpp
+```cpp
       #include <ii_WIFI.h>
 
       ii_WIFI wifi;
@@ -24,7 +21,7 @@ Additionally, the library facilitates easy management of server APIs and a File 
       void loop() {
       // Main code to be executed repeatedly goes here.
       }
-   ```
+```
 
 ## Wi-Fi Connection Flow
 The flow chart below illustrates the decision-making process of the ii_WIFI library at startup:
@@ -87,6 +84,8 @@ The `ii_WIFI` library streamlines the management of Wi-Fi connectivity on ESP32 
 
 This example demonstrates the basic functionality of the `ii_WIFI.h` library, showing how to establish Wi-Fi connectivity on an ESP32 device. It's compatible with the Arduino IDE.
 
+![Example GIF](examples/ledon_off.jpg)
+
 ## Setup Instructions
 
 1. **Install Libraries**:
@@ -129,6 +128,8 @@ SSID: ii-AIAX  PW: 12345678
 - Connect to the ESP32 Access Point using the provided SSID and password.
 - Navigate to `192.168.1.1/ledon` or `192.168.1.1/ledoff` in your browser to turn the LEDs on or off, respectively.
 
+
+
 ## Customization
 
 - Set a custom Access Point SSID and password by uncommenting and editing:
@@ -142,13 +143,18 @@ SSID: ii-AIAX  PW: 12345678
   If the ESP32 connects to your network, it will display a different IP address. Use this IP to control the LEDs from any device connected to your network, e.g., `192.168.1.122/ledon`.
 
  
-## WiFi 02: StoreCredentials and UI Example
- 
+# WiFi 02: StoreCredentials and UI Example
+Download and Open the code from Visual Code
+https://github.com/ii-lk/ii_WIFI/tree/main/examples/wifi_02_StoreCredentials_UI
+
+ ![Example GIF](examples/wifi_02_StoreCredentials_UI/vscode_01.jpg)
 ### Initial Setup
 First, upload the HTML files from the `/data` folder to the ESP32 file system:
 1. Connect the ESP32 to your computer via USB and select the correct COM port.
 2. Open Visual Studio Code and navigate to the PlatformIO sidebar.
 3. Click on the "PlatformIO" icon, then select "Upload File System Image".
+
+ ![Example GIF](examples/wifi_02_StoreCredentials_UI/vscode02.jpg)
 
 A successful upload will show a message in the terminal similar to:
 ```
@@ -245,3 +251,10 @@ void loop()
 
 ```
 ![Wiring Diagram](examples/wifi_02_StoreCredentials_UI/ii_wifi_lib.jpg)
+ 
+## Contributing
+Contributions to the `ii_WIFI` library are greatly appreciated. If you have improvements or new features in mind, please fork the repository, commit your updates, and submit a pull request with your changes.
+
+## License
+The `ii_WIFI` library is made available under the GNU Lesser General Public License v3.0 (LGPL-3.0) - refer to the [LICENSE](LICENSE) file for detailed information. The LGPL-3.0 is an open-source license that allows both private and commercial usage while ensuring enhancements to the library are shared with the community. It also allows the `ii_WIFI` library to be combined with non-LGPL software, offering broad compatibility for various projects.
+ 
