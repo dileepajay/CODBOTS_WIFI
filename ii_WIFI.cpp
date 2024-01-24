@@ -41,7 +41,7 @@ bool ii_WIFI::readModePin()
     return modeswitch;
   }
   pinMode(modepin_, INPUT);
-  modeswitch = (pindir == digitalRead(modepin_));
+  modeswitch = (pindir_ == digitalRead(modepin_));
   return modeswitch;
 }
 /*
