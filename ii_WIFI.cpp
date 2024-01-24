@@ -33,7 +33,7 @@ void ii_WIFI::setModePin(int modepin, bool pindir)
     Serial.println("AP MODE SWITCH ACTIVED");
   }
 }
-void ii_WIFI::readModePin()
+bool ii_WIFI::readModePin()
 {
   if (modepin_ == 0)
   {
