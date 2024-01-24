@@ -19,7 +19,7 @@
 
         body {
             margin: 0px;
-            padding: 0px;
+            padding: 20px;
             ;
         }
 
@@ -148,14 +148,36 @@
         .grayscale-div {
             filter: grayscale(100%);
         }
+
+        header {
+            text-align: center;
+        }
+
+        header img {
+            height: 60px;
+            width: 60px;
+            margin: 20px;
+        }
     </style>
 
 </head>
 
 <body>
-    <div class="title" style="width: 100%;text-align: center;">
-        <img style="margin: auto;width: 50%;margin: 20px;" src="img/logo.png">
-    </div>
+    <header>
+        <table style="width: fit-content;">
+            <tr>
+                <td>
+                    <img src="img/logo.png" alt="Logo">
+                </td>
+                <td>
+                    <a href="https://github.com/ii-lk/ii_WIFI.git" target="_">
+                        <h3>WIFI Settings</h3>
+                    </a>
+                </td>
+            </tr>
+        </table>
+    </header>
+    <span>Access Point (AP) Section:</span>
     <div class="container apcontainer grayscale-div">
         <table style="margin: auto;">
             <tr>
@@ -170,6 +192,7 @@
         </table>
     </div>
 
+    <span>Station (STA) Section:</span>
     <div class="container stacontainer grayscale-div">
         <table style="margin: auto;">
             <tr>
@@ -184,9 +207,12 @@
         </table>
     </div>
 
-
-    <div class="container">
+    <br>
+    <div style="background-color: aliceblue;padding: 20px;border-radius: 5px;" class="container">
         <h4>Add New Network</h4>
+        <span style="font-size: 14px;">Input Wi-Fi SSID and password, then press <strong>'Connect' while holding [MODE
+                BUTTON]</strong> to connect.</span>
+        <br><br>
         <div>
             <label for="username">Wi-Fi SSID (Network Name):</label>
             <input type="text" id="ssidField" name="username" placeholder="Enter Wi-Fi SSID" required>
@@ -211,21 +237,26 @@
             </table>
         </div>
     </div>
+    <br>
 
-
-    <div class="container">
+    <div style="background-color: aliceblue;padding: 20px;border-radius: 5px;" class="container">
         <h4>Available Wi-Fi Networks</h4>
+        <span style="font-size: 14px;">list of available Wi-Fi networks in range. Select a network to connect to or view
+            its details.</span>
         <div id="listofnetworks"></div>
     </div>
-    <br><br>
-    <h4>Network status JSON</h4>
-    <textarea id="jsondetails"></textarea>
-
+    <br>
+    <div style="background-color: aliceblue;padding: 20px;border-radius: 5px;" class="container">
+        <h4>Network status JSON</h4>
+        <textarea id="jsondetails"></textarea>
+    </div>
     <!-- Popup -->
     <div class="popup-container" id="popupContainer">
 
-        <div class="popup">
 
+    </div>
+    <div style="display: none;" id="popup_networkconnected">
+        <div class="popup">
             <p style="background-color: #a3ffca;padding: 10px;"><strong>Successfully connected to the
                     '<strong class="sta_name_p"></strong>' network.</strong></p>
 
@@ -255,12 +286,7 @@
         var usernameInput;
         var passwordInput;
         function connectWifi() {
-            button = document.getElementById('connectbutton');
-            loading_img = document.getElementById('loading_image');
-            loading_text = document.getElementById('loading_text');
-            usernameInput = document.getElementsByName("username")[0];
-            passwordInput = document.getElementsByName("password")[0];
-
+            formEnable(true);
 
             if (!wificonnect) {
 
@@ -274,8 +300,9 @@
 
                 getJSONData('wifi_connect?ssid=' + usernameInput.value + '&password=' + passwordInput.value, (error, data) => {
                     if (error) {
-                        console.error('Error:', error);
+                        console.error(error);
                         alert(error);
+                        formEnable(true);
                     } else {
                         console.log(data); // Your JSON data is available here
                         //window.location.href = 'wifidetails.html';
@@ -327,7 +354,7 @@
         function startWifiStatusLoop() {
             getJSONData('wifi_status', (error, data) => {
                 if (error) {
-                    console.error('Error:', error);
+                    // console.error('Error:', error);
                     //alert(error);///
 
                     document.getElementsByClassName('apcontainer')[0].classList.add('grayscale-div');
@@ -335,7 +362,7 @@
                 } else {
                     document.getElementsByClassName('apcontainer')[0].classList.remove('grayscale-div');
                     document.getElementsByClassName('stacontainer')[0].classList.remove('grayscale-div');
-                    console.log(data);
+                    // console.log(data);
                     fillTable(data);
                 }
             });
@@ -390,7 +417,7 @@
                         var element = links[i];
                         element.innerHTML = wifistatus.STA_ssid;
                     }
-
+                    popupContainer.innerHTML = document.getElementById('popup_networkconnected').innerHTML;
                     popup(true);
                 }
             }
@@ -504,15 +531,24 @@
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
                     }
-                    return response.json();
+
+                    const contentType = response.headers.get("content-type");
+                    if (contentType && contentType.includes("application/json")) {
+                        return response.json(); // If response is JSON, parse and return it
+                    } else {
+                        return response.text().then(text => {
+                            throw new Error(text); // If response is not JSON, return text as error
+                        });
+                    }
                 })
                 .then(data => {
-                    callback(null, data); // Pass the data to the callback function
+                    callback(null, data); // Pass the JSON data to the callback function
                 })
                 .catch(error => {
-                    callback(error, null); // Pass the error to the callback function
+                    callback(error.message, null); // Pass the error message to the callback function
                 });
         }
+
 
         // Define arrays for signal level names and their corresponding RSSI ranges
         var signalLevelNames = [
@@ -576,6 +612,18 @@
             }
         }
 
+        function alert(text) {
+            var color = '#a3ffca';
+            if (text.contains('ERROR')) {
+                color = '#ff7272';
+            }
+            popupContainer.innerHTML = '<div class="">' +
+                '<p  style="background-color: ; padding: 10px;text-align:center;padding:20px">' +
+                '<strong>' + text.replaceAll('ERROR', '<span style="color: red;">&#x26A0;</span>') + '</strong></p>' +
+                '</div>';
+            popup(true);
+        }
+
         // Close the popup when the user clicks outside of it
         popupContainer.addEventListener("click", (e) => {
             if (e.target === popupContainer) {
@@ -583,6 +631,13 @@
             }
         });
     </script>
+    <footer style="text-align: center; margin-top: 20px;">
+        <p>Developed by <a href="http://www.ii.lk" target="_blank">ii.lk</a>.
+            Find the source on
+            <a href="https://github.com/ii-lk/ii_WIFI" target="_blank">GitHub</a>.
+        </p>
+    </footer>
+
 </body>
 
 </html>
