@@ -27,14 +27,23 @@ void ii_WIFI::setModePin(int modepin, bool pindir)
 {
   modepin_ = modepin;
   pindir_ = pindir;
-  pinMode(modepin_, INPUT);
-  modeswitch = (pindir == digitalRead(modepin_));
+  readModePin();
   if (modeswitch)
   {
     Serial.println("AP MODE SWITCH ACTIVED");
   }
 }
-
+void ii_WIFI::readModePin()
+{
+  if (modepin_ == 0)
+  {
+    modeswitch = false;
+    return modeswitch;
+  }
+  pinMode(modepin_, INPUT);
+  modeswitch = (pindir == digitalRead(modepin_));
+  return modeswitch;
+}
 /*
   Function: getSignalLevelName
   Description: Get the signal level name based on RSSI.
@@ -374,25 +383,38 @@ bool ii_WIFI::beginServer()
   // Handle requests for the /wifi_connect endpoint
   addPath("/wifi_connect", HTTP_GET, [this](AsyncWebServerRequest *request)
           {
-    String q_ssid;
-    String q_password;
+            if (rom_ == nullptr)
+            {
+              request->send(200, "text/plain", "ERROR:ROM is not innitialized!");
+            }
+            else if (!readModePin())
+            {
+              request->send(200, "text/plain", "ERROR:Press Mode Switch to change Settings");
+            }
+            else
+            {
+              String q_ssid;
+              String q_password;
 
-    // Get the 'ssid' parameter from the request
-    if (request->hasParam("ssid")) {
-      q_ssid = request->getParam("ssid")->value();
-      rom_->write(q_ssid, rom_ssid_);
-    }
+              // Get the 'ssid' parameter from the request
+              if (request->hasParam("ssid"))
+              {
+                q_ssid = request->getParam("ssid")->value();
+                rom_->write(q_ssid, rom_ssid_);
+              }
 
-    // Get the 'password' parameter from the request
-    if (request->hasParam("password")) {
-      q_password = request->getParam("password")->value();
-      rom_->write(q_password, rom_password_);
-    }
+              // Get the 'password' parameter from the request
+              if (request->hasParam("password"))
+              {
+                q_password = request->getParam("password")->value();
+                rom_->write(q_password, rom_password_);
+              }
 
-    readWifiSettings();
-    connect(WIFI_STA);
+              readWifiSettings();
+              connect(WIFI_STA);
 
-    request->send(200, "application/json", getConnectStatusJSON()); });
+              request->send(200, "application/json", getConnectStatusJSON());
+            } });
 
   // Handle requests for the /wifi_disconnect endpoint
   addPath("/wifi_disconnect", HTTP_GET, [this](AsyncWebServerRequest *request)

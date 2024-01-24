@@ -136,6 +136,8 @@ public:
     String getSTASSID() const;
     String getSTAPassword() const;
 
+    bool readModePin();
+
 private:
     // Pointer to ii_ROM instance
     ii_ROM *rom_;
