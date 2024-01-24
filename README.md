@@ -10,40 +10,21 @@ The ii_WIFI library is tailored for effortless management of Wi-Fi connectivity 
 
 Additionally, the library facilitates easy management of server APIs and a File Server, making it a versatile tool for networked ESP32 projects. Here is the simplest way to get started with the ii_WIFI library for establishing a Wi-Fi connection.
  
-```cpp
-#include <ii_WIFI.h>
+   ```cpp
+      #include <ii_WIFI.h>
 
-ii_WIFI wifi;
+      ii_WIFI wifi;
+      
+      void setup() {
+         // wifi.setSTA("WIFI_SSID","WIFI_PW");
+         // wifi.setAP("ii-WIFI-AccessPoint","12345678");
+         wifi.connect(true);
+      }
 
-void setup() {
-  Serial.begin(115200);
-  
-   // wifi.setSTA("WIFI_SSID","WIFI_PW");
-
-   // wifi.setAP("ii-WIFI-AccessPoint","12345678");
-
-  wifi.connect(true);
-
-  // Simple server example: Adding two paths to the server to control LEDs (ON and OFF).
-  wifi.addPath("/ledon", HTTP_GET, [](AsyncWebServerRequest *request) {
-    digitalWrite(PIN_DEBUG, HIGH); // Turn LED ON
-    request->send(200, "text/plain", "LED ON");
-  });
-
-  wifi.addPath("/ledoff", HTTP_GET, [](AsyncWebServerRequest *request) {
-    digitalWrite(PIN_DEBUG, LOW); // Turn LED OFF
-    request->send(200, "text/plain", "LED OFF");
-  });
-
-  // Print the paths added to the server for debugging and verification.
-  wifi.printPaths();
-}
-
-void loop() {
-  // Main code to be executed repeatedly goes here.
-}
-
-```
+      void loop() {
+      // Main code to be executed repeatedly goes here.
+      }
+   ```
 
 ## Wi-Fi Connection Flow
 The flow chart below illustrates the decision-making process of the ii_WIFI library at startup:
@@ -99,10 +80,69 @@ The `ii_WIFI` library streamlines the management of Wi-Fi connectivity on ESP32 
    - PlatformIO will automatically handle the download and management of the `ii_WIFI` library.
 
  
+ 
+# WiFi 01: Basic Connect Example
 
-This guide provides an easy-to-follow setup process for users looking to integrate the `ii_WIFI` library into their Arduino or PlatformIO projects. Remember to replace the links with the actual URLs to your `ii_WIFI` library repository on GitHub.
+## Overview
 
-## wifi_02_StoreCredentials_UI Example
+This example demonstrates the basic functionality of the `ii_WIFI.h` library, showing how to establish Wi-Fi connectivity on an ESP32 device. It's compatible with the Arduino IDE.
+
+## Setup Instructions
+
+1. **Install Libraries**:
+   - Download `ii_WIFI` and `ii_ROM` libraries.
+   - Place them in the `Documents\Arduino\libraries` directory.
+
+2. **Load the Example**:
+   - Navigate to `Documents\Arduino\libraries\ii_WIFI\examples\wifi_01_basic_connect`.
+   - Open the example with the Arduino IDE.
+
+3. **Board and Port Selection**:
+   - Select your ESP32 board from the Tools > Board menu.
+   - Choose the correct port connected to your ESP32 device.
+
+4. **Upload the Sketch**:
+   - Compile and upload the code to your ESP32 board.
+   - Open the Serial Monitor to view the output.
+
+## Serial Monitor Output
+
+The Serial Monitor will display the following upon successful upload:
+
+```
+Connecting AP
+Mode: Access Point
+SSID: ii-AIAX  PW: 12345678
+192.168.1.1
+---
+# List of Server Paths
+192.168.1.1/networks_list
+192.168.1.1/wifi_connect
+192.168.1.1/wifi_disconnect
+192.168.1.1/wifi_status
+192.168.1.1/ledon
+192.168.1.1/ledoff
+```
+
+## Connect and Control
+
+- Connect to the ESP32 Access Point using the provided SSID and password.
+- Navigate to `192.168.1.1/ledon` or `192.168.1.1/ledoff` in your browser to turn the LEDs on or off, respectively.
+
+## Customization
+
+- Set a custom Access Point SSID and password by uncommenting and editing:
+  ```cpp
+  // wifi.setAP("Your_Custom_SSID", "Your_Custom_Password");
+  ```
+- Connect to your own network by uncommenting and editing:
+  ```cpp
+  // wifi.setSTA("Your_WiFi_SSID", "Your_WiFi_Password");
+  ```
+  If the ESP32 connects to your network, it will display a different IP address. Use this IP to control the LEDs from any device connected to your network, e.g., `192.168.1.122/ledon`.
+
+ 
+## WiFi 02: StoreCredentials and UI Example
  
 ### Initial Setup
 First, upload the HTML files from the `/data` folder to the ESP32 file system:
