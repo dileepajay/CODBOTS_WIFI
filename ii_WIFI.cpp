@@ -218,9 +218,9 @@ void ii_WIFI::connect(bool waitforconnect)
         Serial.print(".");
         digitalWrite(PIN_DEBUG, !digitalRead(PIN_DEBUG));
       }
-      digitalWrite(PIN_DEBUG, LOW);
       Serial.println("---");
     }
+    digitalWrite(PIN_DEBUG, getWifiMode() == WIFI_AP);
   }
 }
 
