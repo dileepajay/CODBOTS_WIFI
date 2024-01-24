@@ -37,6 +37,11 @@ void setup()
     }
     Serial.println(".");
     Serial.println(wifi.getConnectDetails());
+
+    if (wifi.getWifiMode() == WIFI_AP)
+    {
+        digitalWrite(2, HIGH);
+    }
 }
 
 void initServer()
@@ -48,7 +53,7 @@ void initServer()
       request->send(200, "text/plain", "LED ON"); });
 
     server.on("/ledoff", HTTP_GET, [](AsyncWebServerRequest *request)
-              { 
+              {
       digitalWrite(PIN_DEBUG, LOW);
       request->send(200, "text/plain", "LED OFF"); });
 }

@@ -6,12 +6,6 @@ ii_WIFI::ii_WIFI() : rom_(nullptr), server_(nullptr)
   // Initialize other members of ii_WIFI here if needed
 }
 
-// Constructor that takes a reference to ii_ROM and a pointer to AsyncWebServer
-ii_WIFI::ii_WIFI(ii_ROM &rom, AsyncWebServer &server) : rom_(&rom), server_(&server)
-{
-  // Initialize other members of ii_WIFI here if needed
-}
-
 /*
   Function: setMemory
   Description: Set memory addresses for Wi-Fi credentials in ROM.
@@ -33,6 +27,12 @@ void ii_WIFI::setModePin(int modepin, bool pindir)
 {
   modepin_ = modepin;
   pindir_ = pindir;
+  pinMode(modepin_, INPUT);
+  modeswitch = (pindir == digitalRead(modepin_));
+  if (modeswitch)
+  {
+    Serial.println("AP MODE SWITCH ACTIVED");
+  }
 }
 
 /*
@@ -47,6 +47,53 @@ String ii_WIFI::getSignalLevelName(int RSSI)
     return signalLevelNames[index];
   }
   return "Unknown";
+}
+
+// Setters
+void ii_WIFI::setAP(const String &ssid, const String &password)
+{
+  ap_ssid = ssid;
+  ap_password = password;
+  ap_code_credentials = !ap_ssid.isEmpty();
+}
+
+void ii_WIFI::setSTA(const String &ssid, const String &password)
+{
+  sta_ssid = ssid;
+  sta_password = password;
+  sta_code_credentials = !sta_ssid.isEmpty();
+}
+
+// Getters AP
+String ii_WIFI::getAPSSID() const
+{
+  return ap_ssid;
+}
+
+String ii_WIFI::getAPPassword() const
+{
+  return ap_password;
+}
+
+// Getters STA
+String ii_WIFI::getSTASSID() const
+{
+  return sta_ssid;
+}
+
+String ii_WIFI::getSTAPassword() const
+{
+  return sta_password;
+}
+
+void ii_WIFI::setAPPrefix(const String &prefix)
+{
+  ap_prefix = prefix;
+}
+
+String ii_WIFI::getAPPrefix() const
+{
+  return ap_prefix;
 }
 
 /*
@@ -128,8 +175,13 @@ String ii_WIFI::getEncryptionTypeString(int encryptionType)
 */
 void ii_WIFI::readWifiSettings()
 {
-  sta_ssid = rom_->read(rom_ssid_);
-  sta_password = rom_->read(rom_password_);
+  // STA_SSID is not defined
+  if (rom_ != nullptr)
+  { // or use (rom_ != NULL) for pre-C++11
+    // Safe to use rom_
+    sta_ssid = rom_->read(rom_ssid_);
+    sta_password = rom_->read(rom_password_);
+  }
 }
 
 /*
@@ -138,10 +190,17 @@ void ii_WIFI::readWifiSettings()
 */
 void ii_WIFI::connect()
 {
+  connect(false);
+}
+
+void ii_WIFI::connect(bool waitforconnect)
+{
   if (wifimode == 0)
   {
-
-    readWifiSettings();
+    if (!sta_code_credentials)
+    {
+      readWifiSettings();
+    }
     if (modeswitch || sta_ssid.isEmpty())
     {
       connect(WIFI_AP);
@@ -149,6 +208,18 @@ void ii_WIFI::connect()
     else
     {
       connect(WIFI_STA);
+    }
+    if (waitforconnect)
+    {
+      pinMode(PIN_DEBUG, OUTPUT);
+      while (isConnecting())
+      {
+        delay(100);
+        Serial.print(".");
+        digitalWrite(PIN_DEBUG, !digitalRead(PIN_DEBUG));
+      }
+      digitalWrite(PIN_DEBUG, LOW);
+      Serial.println("---");
     }
   }
 }
@@ -168,8 +239,11 @@ int ii_WIFI::getWifiMode()
 */
 void ii_WIFI::connect(int mode)
 {
+  beginServer();
   if (mode == WIFI_AP)
   {
+    generateAPSSID();
+
     // Start the ESP32 in AP (Access Point) mode
     WiFi.softAP(ap_ssid, ap_password);
 
@@ -191,6 +265,19 @@ void ii_WIFI::connect(int mode)
   wifimode = mode;
 }
 
+void ii_WIFI::generateAPSSID()
+{
+  if (!ap_code_credentials)
+  {
+    ap_ssid = String(ap_prefix) + "-";
+    for (int i = 0; i < 4; i++)
+    {
+      char randomChar = char(random(65, 91)); // ASCII values for A-Z are 65-90
+      ap_ssid += randomChar;
+    }
+    ap_password = "12345678";
+  }
+}
 /*
   Function: getConnectStatus
   Description: Get the connection status.
@@ -225,24 +312,46 @@ String ii_WIFI::getConnectStatus(int status)
   }
 }
 
+// Function to add a path to the list and set up the server endpoint
+void ii_WIFI::addPath(const String &path, WebRequestMethodComposite method, ArRequestHandlerFunction onRequest)
+{
+  if (!server_)
+  {
+    server_ = new AsyncWebServer(80); // Dynamically allocate on the heap
+  }
+  server_->on(path.c_str(), method, onRequest);
+  serverPaths.push_back(path);
+}
+
+void ii_WIFI::printPaths()
+{
+  Serial.println("#List of Sertver Paths");
+  String ip = getIP();
+  for (const String &path : serverPaths)
+  {
+    Serial.println(ip + path);
+  }
+}
+
 /*
   Function: beginServer
   Description: Start the AsyncWebServer.
 */
-bool ii_WIFI::beginServer(AsyncWebServer &server)
+bool ii_WIFI::beginServer()
 {
   if (server_started)
   {
     return server_started;
   }
 
-  pinMode(modepin_, INPUT);
-  modeswitch = digitalRead(modepin_);
-
-  server_ = &server;
+  if (!server_)
+  {
+    server_ = new AsyncWebServer(80); // Dynamically allocate on the heap
+  }
 
   // Serve static files
   wifi_list = getWifiNetworksJSON();
+
   server_->onNotFound([](AsyncWebServerRequest *request)
                       {
     if (request->method() == HTTP_GET) {
@@ -259,12 +368,12 @@ bool ii_WIFI::beginServer(AsyncWebServer &server)
     } });
 
   // Handle requests for the /networks_list endpoint
-  server_->on("/networks_list", HTTP_GET, [this](AsyncWebServerRequest *request)
-              { request->send(200, "application/json", wifi_list); });
+  addPath("/networks_list", HTTP_GET, [this](AsyncWebServerRequest *request)
+          { request->send(200, "application/json", wifi_list); });
 
   // Handle requests for the /wifi_connect endpoint
-  server_->on("/wifi_connect", HTTP_GET, [this](AsyncWebServerRequest *request)
-              {
+  addPath("/wifi_connect", HTTP_GET, [this](AsyncWebServerRequest *request)
+          {
     String q_ssid;
     String q_password;
 
@@ -286,14 +395,14 @@ bool ii_WIFI::beginServer(AsyncWebServer &server)
     request->send(200, "application/json", getConnectStatusJSON()); });
 
   // Handle requests for the /wifi_disconnect endpoint
-  server_->on("/wifi_disconnect", HTTP_GET, [this](AsyncWebServerRequest *request)
-              {
+  addPath("/wifi_disconnect", HTTP_GET, [this](AsyncWebServerRequest *request)
+          {
     WiFi.disconnect();
     request->send(200, "application/json", getConnectStatusJSON()); });
 
   // Handle requests for the /wifi_status endpoint
-  server_->on("/wifi_status", HTTP_GET, [this](AsyncWebServerRequest *request)
-              { request->send(200, "application/json", getConnectStatusJSON()); });
+  addPath("/wifi_status", HTTP_GET, [this](AsyncWebServerRequest *request)
+          { request->send(200, "application/json", getConnectStatusJSON()); });
 
   // Mount SPIFFS
   if (!SPIFFS.begin())
@@ -385,10 +494,15 @@ void ii_WIFI::autoAP(bool autoap_)
 
 bool ii_WIFI::isConnecting()
 {
-  bool b = getWifiMode() == WIFI_STA && getConnectStatus() != WL_CONNECTED && (millis() - connectstarttime) < connect_timeout;
-  if (autoap && !b && getConnectStatus() != WL_CONNECTED)
+  int connectstate = getConnectStatus();
+  bool b = getWifiMode() == WIFI_STA && connectstate != WL_CONNECTED && (millis() - connectstarttime) < connect_timeout;
+  if (autoap && !b && connectstate != WL_CONNECTED)
   {
     connect(WIFI_AP);
+  }
+  if (!b)
+  {
+    Serial.println(getConnectDetails());
   }
   return b;
 }

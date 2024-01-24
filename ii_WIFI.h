@@ -1,12 +1,35 @@
 #ifndef ii_WIFI_H
 #define ii_WIFI_H
 
+#include "config.h"
 #include <Arduino.h>
 #include <WiFi.h>
 #include <ii_ROM.h>
 #include <IPAddress.h>
 #include <ESPAsyncWebServer.h>
 #include <SPIFFS.h>
+
+/*
+//is AP_SSID is not defined this is using for prefix ii_xxxxx
+#define AP_PREFIX "ii"
+*/
+
+/*
+// Access Point SSID and PW
+#define AP_SSID "-"
+#define AP_PW "-"
+*/
+
+/*
+//WIFI Station SSID and PW, if defined not using ROM stored details
+#define STA_SSID ""
+#define STA_PW ""
+*/
+
+// if not defines ssid and pw, use ap_prefix to auto generate ssid
+#ifndef PIN_DEBUG
+#define PIN_DEBUG 2
+#endif
 
 class ii_WIFI
 {
@@ -29,11 +52,13 @@ public:
         "DISCONNECTED",
         "TIMEOUT"};
 
+    // Define a global list to store the paths
+    std::vector<String> serverPaths;
+
     // Default constructor
     ii_WIFI();
 
     // Constructor that takes a reference to ii_ROM and AsyncWebServer
-    ii_WIFI(ii_ROM &rom, AsyncWebServer &server);
 
     // Set memory addresses for Wi-Fi credentials in ROM
     void setMemory(ii_ROM &rom, int rom_ssid_, int rom_password_);
@@ -58,12 +83,17 @@ public:
 
     // Read Wi-Fi settings from ROM
     void readWifiSettings();
-
     // Connect to Wi-Fi (automatically determine mode)
     void connect();
+    // Connect to Wi-Fi (automatically determine mode)
+    void connect(bool waitforconnect);
 
     // Connect to Wi-Fi with specified mode (AP or STA)
     void connect(int mode);
+
+    void addPath(const String &path, WebRequestMethodComposite method, ArRequestHandlerFunction onRequest);
+
+    void printPaths();
 
     // Get the connection status
     int getConnectStatus();
@@ -80,11 +110,31 @@ public:
     String getConnectDetails();
 
     // Start the AsyncWebServer
-    bool beginServer(AsyncWebServer &server);
+    bool beginServer();
 
     bool isConnecting();
 
     void autoAP(bool autoap_);
+
+    void generateAPSSID();
+
+    // Setter for ap_prefix
+    void setAPPrefix(const String &prefix);
+
+    // Getter for ap_prefix
+    String getAPPrefix() const;
+
+    // AP Setters
+    void setAP(const String &ssid, const String &password);
+    // STA Setters
+    void setSTA(const String &ssid, const String &password);
+
+    // Getters
+    String getAPSSID() const;
+    String getAPPassword() const;
+
+    String getSTASSID() const;
+    String getSTAPassword() const;
 
 private:
     // Pointer to ii_ROM instance
@@ -118,11 +168,17 @@ private:
     // Flag indicating whether the server has been started
     bool server_started;
 
+    bool lastconnectstate;
+
+    String ap_prefix = "ii";
+
     // Access Point (AP) settings
-    const char *ap_ssid = "WATCHDOG0001x"; // SSID of ESP32's access point
-    const char *ap_password = "abc12345";  // Password for ESP32's access point
+    bool ap_code_credentials;
+    String ap_ssid;     // SSID of ESP32's access point
+    String ap_password; // Password for ESP32's access point
 
     // Station (STA) settings
+    bool sta_code_credentials;
     String sta_ssid;     // SSID for STA mode
     String sta_password; // Password for STA mode
 
