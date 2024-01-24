@@ -386,10 +386,12 @@ bool ii_WIFI::beginServer()
             if (rom_ == nullptr)
             {
               request->send(200, "text/plain", "ERROR:ROM is not innitialized!");
+              return;
             }
             else if (!readModePin())
             {
               request->send(200, "text/plain", "ERROR:Press Mode Switch to change Settings");
+              return;
             }
             else
             {
