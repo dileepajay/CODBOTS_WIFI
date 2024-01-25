@@ -1,27 +1,45 @@
 # ii_WIFI Library
 
+![Example GIF](examples/lib_image.jpg)
+
 The ii_WIFI library is tailored for effortless management of Wi-Fi connectivity on ESP32 devices. It simplifies the process of establishing and maintaining Wi-Fi connections. Upon device startup, it automatically initiates an access point, allowing users to connect and update Wi-Fi credentials seamlessly. In conjunction with the ii_ROM.h library, Wi-Fi credentials are securely stored in ROM, enabling the device to automatically reconnect to the specified Wi-Fi network every time it starts.
 
 Additionally, the library facilitates easy management of server APIs and a File Server, making it a versatile tool for networked ESP32 projects. Here is the simplest way to get started with the ii_WIFI library for establishing a Wi-Fi connection.
 
-![Example GIF](examples/lib_image.jpg)
 
  
 ```cpp
-      #include <ii_WIFI.h>
+   #include <ii_WIFI.h>
 
-      ii_WIFI wifi;
+   ii_WIFI wifi;
       
-      void setup() {
-         // wifi.setSTA("WIFI_SSID","WIFI_PW");
-         // wifi.setAP("ii-WIFI-AccessPoint","12345678");
-         wifi.connect(true);
-      }
+   void setup() {
+      // wifi.setSTA("WIFI_SSID","WIFI_PW");
+      // wifi.setAP("ii-WIFI-AccessPoint","12345678");
+      wifi.connect(true);
+   }
 
-      void loop() {
+   void loop() {
       // Main code to be executed repeatedly goes here.
-      }
+   }
 ```
+
+
+## Library Features
+
+The `ii_WIFI` library is a comprehensive solution for managing Wi-Fi connectivity on ESP32 devices, offering the following key features:
+
+- **Dual Mode Connectivity**: Supports two modes of operation - Station Mode (STA) and Access Point Mode (AP). This allows devices to either connect to an existing Wi-Fi network or create their own Wi-Fi access point.
+
+- **Wi-Fi Credential Management**: Efficiently handles user-provided Wi-Fi credentials, storing them securely in ROM. This ensures persistent, hassle-free connectivity across device reboots.
+
+- **Server and API Management**: Offers tools for easy management of server configurations and APIs, streamlining the process of setting up and maintaining web servers and network services.
+
+- **Built-in File Server Support**: Integrates directly with SPIFFS (Serial Peripheral Interface Flash File System), allowing the device to host a file server. This feature is essential for applications that require direct file access and management.
+
+- **Integration with ii_ROM Library**: Seamlessly connects with the `ii_ROM` library for enhanced ROM operations. This integration furthers the library’s capability in managing stored data efficiently.
+
+These features position the `ii_WIFI` library as a versatile tool for ESP32 projects, especially where reliable Wi-Fi connectivity and effective data management are crucial.
 
 ## Wi-Fi Connection Flow
 The flow chart below illustrates the decision-making process of the ii_WIFI library at startup:
@@ -96,6 +114,42 @@ This example demonstrates the basic functionality of the `ii_WIFI.h` library, sh
    - Navigate to `Documents\Arduino\libraries\ii_WIFI\examples\wifi_01_basic_connect`.
    - Open the example with the Arduino IDE.
 
+   - https://github.com/ii-lk/ii_WIFI/blob/main/examples/wifi_01_basic_connect/wifi_01_basic_connect.ino
+      ```cpp
+      #include <ii_WIFI.h>
+
+      ii_WIFI wifi;
+
+      void setup() {
+      Serial.begin(115200);
+
+      // wifi.setAP("ii-WIFI-AccessPoint","12345678");
+      
+      // wifi.setSTA("WIFI_SSID","WIFI_PW");
+
+      // Start the server and connect to WiFi either as a Station (STA) or as an Access Point (AP).
+      wifi.connect(true);
+
+      // Simple server example: Adding two paths to the server to control LEDs (ON and OFF).
+      wifi.addPath("/ledon", HTTP_GET, [](AsyncWebServerRequest *request) {
+         digitalWrite(PIN_DEBUG, HIGH); // Turn LED ON
+         request->send(200, "text/plain", "LED ON");
+      });
+
+      wifi.addPath("/ledoff", HTTP_GET, [](AsyncWebServerRequest *request) {
+         digitalWrite(PIN_DEBUG, LOW); // Turn LED OFF
+         request->send(200, "text/plain", "LED OFF");
+      });
+
+      // Print the paths added to the server for debugging and verification.
+      wifi.printPaths();
+      }
+
+      void loop() {
+      // Main code to be executed repeatedly goes here.
+      }
+      ```
+      
 3. **Board and Port Selection**:
    - Select your ESP32 board from the Tools > Board menu.
    - Choose the correct port connected to your ESP32 device.
